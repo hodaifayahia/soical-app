@@ -1,4 +1,5 @@
 <script setup>
+import { stringify } from 'postcss';
 import { onMounted, ref } from 'vue';
 
 const model = defineModel({
@@ -13,6 +14,9 @@ onMounted(() => {
         input.value.focus();
     }
 });
+defineProps({
+    placehoulder : "placeholder"
+})
 
 defineExpose({ focus: () => input.value.focus() });
 </script>
@@ -22,5 +26,6 @@ defineExpose({ focus: () => input.value.focus() });
         class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
         v-model="model"
         ref="input"
+        :placehoulder="placehoulder"
     />
 </template>

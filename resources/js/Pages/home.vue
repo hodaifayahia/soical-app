@@ -5,13 +5,16 @@ import FollowingList from '@/Components/app/FollowingList.vue'; // Adjust the pa
 import CreatePost from '@/Components/app/CreatePost.vue'; // Adjust the path as necessary
 import PostList from '@/Components/app/PostList.vue'; // Adjust the path as necessary
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'; // Adjust the path as necessary
-
+ defineProps ({
+    posts: Object
+})
 
 </script>
 
 <template>
     <Head title="Social Media Website container" />
     <AuthenticatedLayout>
+     
     <div class="grid lg:grid-cols-12 gap-3 p-2 h-full">
         <div class="lg:col-span-3 lg:order-1  h-full overflow-auto">
            <GroupList />
@@ -21,7 +24,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'; // Adjust t
         </div>
         <div class="lg:col-span-6 lg:order-2 h-full overflow-auto flex flex-col">
           <CreatePost />
-          <PostList class="flex-1 overflow-auto"></PostList>
+          <PostList  :posts="posts.data" class="flex-1 overflow-auto"></PostList>
         </div>
     </div>
 </AuthenticatedLayout>

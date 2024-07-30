@@ -2,7 +2,7 @@
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
 
 // Define the props
-const props = defineProps({
+defineProps({
     post: Object
 });
 
@@ -16,7 +16,7 @@ function isImage(attachment) {
     <div class="p-6 bg-white rounded  mb-4">
         <div class="flex items-center mb-4">
             <a href="javascript:void(0)">
-                <img :src="post.user.avatar" alt="User image"
+                <img :src="post.user.avatar_url" alt="User image"
                     class="w-10 h-10 rounded-full mr-3 border-2 transition-all hover:border-cyan-400">
             </a>
             <div>
@@ -37,13 +37,15 @@ function isImage(attachment) {
             <Disclosure>
                 <template v-slot="{ open }">
                     <div>
-                        <div v-if="!open" v-html="post.body.substring(0, 100)" class="prose"></div>
-                        <DisclosurePanel class="">
-                            <div v-html="post.body" class="prose"></div>
-                        </DisclosurePanel>
-                        <DisclosureButton class="flex items-center mt-2 text-blue-500 hover:text-blue-600">
-                            {{ open ? 'Read less' : 'Read more' }}
-                        </DisclosureButton>
+                        <div v-if="!open" v-html="post.body.substring(0, 100)" class="prose break-words"></div>
+                        <template v-if="post.body.length > 200">
+                            <DisclosurePanel class="">
+                                <div v-html="post.body" class="prose break-words"></div>
+                            </DisclosurePanel>
+                            <DisclosureButton class="flex items-center mt-2 text-blue-500 hover:text-blue-600">
+                                {{ open ? 'Read less' : 'Read more' }}
+                            </DisclosureButton>
+                        </template>
                     </div>
                 </template>
             </Disclosure>

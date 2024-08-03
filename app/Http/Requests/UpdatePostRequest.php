@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Post;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class UpdatePostRequest extends FormRequest
 {
@@ -11,7 +13,11 @@ class UpdatePostRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        // Retrieve the Post based on the id input from the request
+        $post = Post::where('id', $this->input('id'))->where('user_id', Auth::id())->first();
+
+        // Return false for authorization (example purpose; actual logic would vary)
+        return !!$post;
     }
 
     /**
@@ -22,7 +28,8 @@ class UpdatePostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'body' => ['nullable','string'],
+            'user_id' => 'numeric',
         ];
     }
 }

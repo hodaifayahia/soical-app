@@ -1,7 +1,9 @@
 <script setup>
 import PostItem from '@/Components/app/PostItem.vue';
+import { ref } from 'vue'
+import PostModel from "@/Components/app/PostModel.vue"; // Corrected import (without {})
 
-defineProps({
+const props = defineProps({
     posts: Array,
 });
 
@@ -36,26 +38,20 @@ const pos1 = {
     created_at: '2024/7/14 15:12'
 };
 
-const pos2 = {
-    user: {
-        id: 1,
-        avatar: "https://i.pravatar.cc/150?img=12",
-        name: "Houdiafa Yahia",
-    },
-    Group: {
-        id: 1,
-        name: 'Laravel Developers'
-    },
-    body: 'Lorem ipsum dolor sit amet consectetur adipisicing elit Molestiae non eum reiciendis minus blanditiis voluptates ad delectus saepe dignissimos velit rem officia cupiditate mollitia laudantium architecto deleniti placeat rerum nemo!',
-    created_at: '2024/7/14 15:12'
-};
+const showEditModel = ref(false); // Changed variable name to camelCase
+const editPost = ref({});
+
+function openEditModel(post) { // Changed parameter name to singular form
+    editPost.value = post;
+    showEditModel.value = true;
+}
 </script>
 
 <template>
-    <div class="max-w-2xl mx-auto p-4">
-        <PostItem v-for="post in posts" :key="post.id" :post="post"></PostItem>
-        <PostItem :post="pos2"></PostItem>
+    <div>
+        <PostItem v-for="post in posts" :key="post.id" :post="post" @editClick="openEditModel" />
     </div>
+    <PostModel :post="editPost" v-model="showEditModel" />
 </template>
 
 <style scoped>

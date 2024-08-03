@@ -1,6 +1,5 @@
 <script setup>
 import { onMounted, ref, defineProps, defineExpose, defineModel } from 'vue';
-
 const model = defineModel({
   type: String,
   required: true,
@@ -39,12 +38,13 @@ function adjustHeight() {
     input.value.style.height = 'auto';
     input.value.style.height = input.value.scrollHeight + 'px';
   }
+
 }
 </script>
 
 <template>
   <textarea
-    class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full"
+    class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm "
     :value="model"
     ref="input"
     :placeholder="placeholder"

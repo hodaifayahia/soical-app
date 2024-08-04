@@ -99,10 +99,10 @@ function deletePost() {
             <Disclosure>
                 <template v-slot="{ open }">
                     <div>
-                        <div v-if="!open" v-html="post.body.substring(0, 100)" class="prose break-words"></div>
+                        <div  class="ck-content-output prose break-words" v-if="!open" v-html="post.body.substring(0, 100)"></div>
                         <template v-if="post.body.length > 200">
                             <DisclosurePanel class="">
-                                <div v-html="post.body" class="prose break-words"></div>
+                                <div class="ck-content-output prose break-words"  v-html="post.body" ></div>
                             </DisclosurePanel>
                             <DisclosureButton class="flex items-center mt-2 text-blue-500 hover:text-blue-600">
                                 {{ open ? 'Read less' : 'Read more' }}

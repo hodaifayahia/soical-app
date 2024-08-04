@@ -23,9 +23,7 @@
                 </DialogTitle>
                 <PostUserHeader :post="post" :showTime="false" class="mb-2 m-2" />
                 <div class="p-3 mt-3">
-                  <TextArea
-                    class="py-4 px-2 text-gray-700 border border-gray-400 rounded cursor-pointer hover:bg-gray-50 w-full"
-                    v-model="form.body" rows="1" />
+                  <ckeditor :editor="editor" v-model="form.body" :config="editorConfig"></ckeditor>
                 </div>
 
                 <div class="m-4">
@@ -45,12 +43,12 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
-import TextArea from '@/Components/TextArea.vue';
-import { XMarkIcon } from '@heroicons/vue/24/solid'
+import { ref, computed, watch } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { TransitionRoot, TransitionChild, Dialog, DialogPanel, DialogTitle } from '@headlessui/vue';
 import PostUserHeader from './PostUserHeader.vue';
-import { useForm } from '@inertiajs/vue3';
+import { XMarkIcon } from '@heroicons/vue/24/solid';
 
 const props = defineProps({
   post: {
@@ -60,6 +58,10 @@ const props = defineProps({
   modelValue: Boolean
 });
 const emit = defineEmits(['update:modelValue']);
+const editor = ClassicEditor;
+const editorConfig = {
+  toolbar: ['heading','|', 'bold', 'italic','|' ,'link','|','bulletedList', 'numberedList', '|', 'outdent', 'indent', 'blockquote'],
+};
 
 const form = useForm({
   id: props.post.id,
@@ -67,9 +69,10 @@ const form = useForm({
 });
 
 watch(() => props.post, (newPost) => {
-  
-  form.id = newPost.id;
-  form.body = newPost.body;
+  form.reset({
+    id: newPost.id,
+    body: newPost.body,
+  });
 }, { immediate: true, deep: true });
 
 const show = computed({
@@ -83,11 +86,14 @@ function closeModal() {
 }
 
 function submit() {
-  form.post(route('post.update', props.post), {
+  form.post(route('post.update', props.post.id), {
     preserveScroll: false,
     onSuccess: () => {
       closeModal();
     },
+    onError: (errors) => {
+      console.log(errors);  // Log errors for debugging
+    }
   });
 }
 </script>

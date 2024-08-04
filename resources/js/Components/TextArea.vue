@@ -2,7 +2,7 @@
 import { onMounted, ref, defineProps, defineExpose, defineModel } from 'vue';
 const model = defineModel({
   type: String,
-  required: true,
+  required: false,
 });
 
 const input = ref(null);
@@ -44,7 +44,7 @@ function adjustHeight() {
 
 <template>
   <textarea
-    class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm "
+    class=""
     :value="model"
     ref="input"
     :placeholder="placeholder"

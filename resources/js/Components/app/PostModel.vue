@@ -15,7 +15,7 @@
               <DialogPanel
                 class="w-full max-w-md transform overflow-hidden rounded bg-white text-left align-middle shadow-xl transition-all">
                 <DialogTitle as="h3" class="flex items-center justify-between py-3 px-4 bg-gray-100 text-lg font-medium text-gray-900">
-                  Update Post
+                 {{ form.id ? ' Update Post' : 'Create Post' }}
                   <button @click="closeModal"
                     class="flex items-center justify-center cursor-pointer bg-opacity-75 hover:bg-opacity-100 text-black font-semibold shadow-sm transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-opacity-50 text-xs sm:text-sm">
                     <XMarkIcon class="h-5 w-5" />
@@ -64,14 +64,14 @@ const editorConfig = {
 };
 
 const form = useForm({
-  id: props.post.id,
-  body: props.post.body,
+  id: null,
+  body: "",
 });
 
-watch(() => props.post, (newPost) => {
+watch(() => props.post, () => {
   form.reset({
-    id: newPost.id,
-    body: newPost.body,
+    id: props.post.id,
+    body: props.post.id,
   });
 }, { immediate: true, deep: true });
 
@@ -86,15 +86,28 @@ function closeModal() {
 }
 
 function submit() {
-  form.post(route('post.update', props.post.id), {
-    preserveScroll: false,
-    onSuccess: () => {
+  if (form.id) {
+    form.post(route('post.update', props.post.id), {
+      preserveScroll: false,
+      onSuccess: () => {
+        closeModal();
+        form.reset();
+      },
+      onError: (errors) => {
+        console.log(errors);  // Log errors for debugging
+      }
+    });
+    
+  } else {
+   preserveScroll: false,
+  form.post(route('post.create'),{
+    onSuccess:()=>{
       closeModal();
-    },
-    onError: (errors) => {
-      console.log(errors);  // Log errors for debugging
+      form.reset();
     }
   });
+
+  }
 }
 </script>
 

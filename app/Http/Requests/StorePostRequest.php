@@ -1,8 +1,10 @@
 <?php
+
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules\File;
 
 class StorePostRequest extends FormRequest
 {
@@ -22,7 +24,16 @@ class StorePostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'body' => ['nullable','string'],
+            'body' => ['nullable', 'string'],
+            'attachements' => ['array', 'max:50'],
+            'attachements.*' => [
+                'file',
+                File::types([
+                    'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'svg',
+                    'mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm', 'mpeg',
+                    'txt', 'csv', 'xml', 'json', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf'
+                ])->max(500 * 1024)
+            ],
             'user_id' => 'numeric',
         ];
     }
@@ -34,8 +45,7 @@ class StorePostRequest extends FormRequest
     {
         $this->merge([
             'user_id' => Auth::id(),
-            'body'=> $this->input('body') ?: " ",
-        
+            'body' => $this->input('body') ?: " ",
         ]);
     }
 }

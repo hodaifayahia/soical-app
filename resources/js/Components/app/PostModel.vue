@@ -26,6 +26,7 @@ const editorConfig = {
 const form = useForm({
   id: null,
   body: "",
+  attachements: [],
 });
 
 watch(() => props.post, () => {
@@ -48,6 +49,7 @@ function closeModal() {
 }
 
 function submit() {
+  form.attachements = attachementFiles.value.map(myfile => myfile.file)
   if (form.id) {
     form.post(route('post.update', props.post.id), {
       preserveScroll: false,
@@ -105,9 +107,9 @@ function RemoveImage(myfile) {
 </script>
 
 <template>
-  <teleport to="body">
+  <teleport to="body ">
     <TransitionRoot appear :show="show" as="template">
-      <Dialog as="div" @close="closeModal" class="relative z-10">
+      <Dialog as="div" @close="closeModal" class="relative z-50">
         <TransitionChild as="template" enter="duration-300 ease-out" enter-from="opacity-0" enter-to="opacity-100"
           leave="duration-200 ease-in" leave-from="opacity-100" leave-to="opacity-0">
           <div class="fixed inset-0 bg-black/25" />
@@ -131,7 +133,7 @@ function RemoveImage(myfile) {
                 <PostUserHeader :post="post" :showTime="false" class="mb-2 m-2" />
                 <div class="p-3 mt-3 ">
                   <ckeditor :editor="editor" v-model="form.body" :config="editorConfig"></ckeditor>
-                  <div class="grid grid-cols-3 gap-2  ">
+                  <div class="grid  gap-2  " :class="[  attachementFiles.length == 1 ?'grid-cols-1' : 'grid-cols-2']">
                     <div v-for="(MyFile) in attachementFiles" class="">
 
                       <div class="mt-4 relative group aspect-square  flex items-center justify-center bg-gray-200">
@@ -145,7 +147,7 @@ function RemoveImage(myfile) {
                           </button>
                           <!-- end download -->
                         </button>
-                        <img v-if="isImage(MyFile.file)" class="object-fit aspect-square" :src="MyFile.url">
+                        <img v-if="isImage(MyFile.file)" class=" object-fill	 aspect-square" :src="MyFile.url">
                         <template v-else>
                           <PaperClipIcon class=" w-16 h-16 " />
                         </template>

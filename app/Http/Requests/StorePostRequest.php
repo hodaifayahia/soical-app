@@ -25,8 +25,8 @@ class StorePostRequest extends FormRequest
     {
         return [
             'body' => ['nullable', 'string'],
-            'attachements' => ['array', 'max:50'],
-            'attachements.*' => [
+            'attachments' => ['array', 'max:50'],
+            'attachments.*' => [
                 'file',
                 File::types([
                     'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'svg',

@@ -11,8 +11,7 @@ const props = defineProps({
     post: Object
 });
 const emit = defineEmits(['editClick']);
-
-
+ 
 function openEditModel(){
     emit('editClick',props.post)
 }
@@ -47,7 +46,7 @@ function deletePost() {
                         leave-from-class="transform scale-100 opacity-100"
                         leave-to-class="transform scale-95 opacity-0">
                         <MenuItems
-                            class="absolute right-0 mt-2 w-36 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                            class="absolute z-20 right-0 mt-2 w-36 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                             <div class="px-1 py-1">
                                 <MenuItem v-slot="{ active }">
                                 <button @click="openEditModel" :class="[
@@ -86,8 +85,8 @@ function deletePost() {
                 <template v-slot="{ open }">
                     <div>
                         <div class="ck-content-output prose break-words" v-if="!open"
-                            v-html="post.body.substring(0, 100)"></div>
-                        <template v-if="post.body.length > 200">
+                            v-html="post.body.substring(0,200)"></div>
+                        <template v-if="post.body.length >200">
                             <DisclosurePanel class="">
                                 <div class="ck-content-output prose break-words" v-html="post.body"></div>
                             </DisclosurePanel>
@@ -99,33 +98,34 @@ function deletePost() {
                 </template>
             </Disclosure>
         </div>
-        <div class="grid  gap-2  " :class="[post.attachments.length == 1 ?'grid-cols-1' : 'grid-cols-2']">
-            <div v-for="(attachment , index) in post.attachments.slice(0,4)" :key="attachment.id" >
+        <div class="grid gap-2" :class="`grid-cols-${Math.min(props.post.attachments.length, 2)}`">
+  <div v-for="(attachment, index) in props.post.attachments.slice(0, 4)" :key="attachment.id" class="relative group aspect-square bg-blue-100 flex items-center justify-center bg-gray-200">
+    
+    <!-- More Attachments Overlay -->
+    <div v-if="index === 3 && props.post.attachments.length > 3" 
+         class="absolute inset-0 z-10 bg-black/60 text-white flex items-center justify-center text-2xl">
+      +{{ props.post.attachments.length - 3 }} more
+    </div>
 
-                <div class="relative group aspect-square bg-blue-100 flex items-center justify-center bg-gray-200">
-                    <div v-if="index == 3" class="absolute left-0 top-0 right-0 bottom-0 z-10 bg-black/60 text-white flex
-                            items-center justify-center text-2xl">
-                        +{{ post.attachments.length - 4 }} more
-                    </div>
+    <!-- Download Button -->
+    <button v-if="index < 3" 
+            class="z-20 w-8 h-8 opacity-0 group-hover:opacity-100 transition-all rounded-full absolute right-2 top-2 bg-gray-700 hover:bg-gray-800 text-gray-100 flex items-center justify-center">
+      <ArrowDownTrayIcon class="h-5 w-5" />
+    </button>
 
-                    <!-- download -->
+    <!-- Attachment Preview -->
+    <img v-if="isImage(attachment)" class="object-cover aspect-square w-full h-full" :src="attachment.url" :alt="attachment.name">
+    
+    <!-- Fallback for Non-Image Attachments -->
+    <template v-else>
+      <div class="flex items-center justify-center text-center text-sm px-4 py-2">
+        {{ attachment.name }}
+      </div>
+    </template>
+    
+  </div>
+</div>
 
-                    <button
-                        class="z-20 w-8 h-8 opacity-0 group-hover:opacity-100  transition-all roundend absolute right-2 top-2  bg-gray-700 hover:bg-gray-800 transation-all text-gray-100 flex items-center justify-center">
-                        <ArrowDownTrayIcon class="h-5 w-5 rounded" />
-                        <!-- end download -->
-                    </button>
-                    <img v-if="isImage(attachment)" class="object-fit aspect-square" :src="attachment.url"
-                        :alt="attachment.name">
-                    <template v-else>
-                       <
-
-                        {{ attachment.name }}
-                    </template>
-
-                </div>
-            </div>
-        </div>
         <div class="flex justify-around  mt-4 ">
             <button
                 class="gap-1  rounded bg-gray-100 hover:bg-gray-200 py-3 px-10   flex items-center space-x-1 text-gray-500 hover:text-blue-200">

@@ -7,6 +7,7 @@ use App\Models\PostAttachements;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class Post extends Model
 {
@@ -30,6 +31,17 @@ class Post extends Model
 
     public function attachments() 
     {
-        return $this->hasMany(PostAttachements::class); // Corrected spelling
+        return $this->hasMany(PostAttachements::class)->latest(); // Corrected spelling
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleted(function (self $model) {
+            // Delete the file from storage when the model is deleted
+            Storage::disk('public')->delete($model->path);
+        });
+    }
+    
 }

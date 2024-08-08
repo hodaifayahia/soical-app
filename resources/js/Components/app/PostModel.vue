@@ -1,39 +1,39 @@
-
 <script setup>
-import {ref, computed, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { TransitionRoot, TransitionChild, Dialog, DialogPanel, DialogTitle } from '@headlessui/vue';
 import PostUserHeader from './PostUserHeader.vue';
-import { XMarkIcon ,PaperClipIcon , BookmarkIcon } from '@heroicons/vue/24/solid';
+import { XMarkIcon, PaperClipIcon, BookmarkIcon ,ArrowUturnLeftIcon} from '@heroicons/vue/24/solid';
 import { isImage } from "@/helper.js";
+
 const props = defineProps({
   post: {
     type: Object,
-    required: true,
+    required: false,
   },
   modelValue: Boolean
 });
-const emit = defineEmits(['update:modelValue']);
-// file 
-// file and scr
+
+const emit = defineEmits(['update:modelValue', 'hide']);
+
 const attachementFiles = ref([]);
 const editor = ClassicEditor;
 const editorConfig = {
-  toolbar: ['heading','|', 'bold', 'italic','|' ,'link','|','bulletedList', 'numberedList', '|', 'outdent', 'indent', 'blockquote'],
+  toolbar: ['heading', '|', 'bold', 'italic', '|', 'link', '|', 'bulletedList', 'numberedList', '|', 'outdent', 'indent', 'blockquote'],
 };
 
 const form = useForm({
-  id: null,
   body: "",
-  attachements: [],
+  attachments: [],
+  deleted_file_ids: [],
+  _method : 'POST',
 });
 
 watch(() => props.post, () => {
-  form.reset({
-    id: props.post.id,
-    body: props.post.id,
-  });
+  
+   form.body = props.post.body || " ";
+ 
 }, { immediate: true, deep: true });
 
 const show = computed({
@@ -41,18 +41,15 @@ const show = computed({
   set: (value) => emit('update:modelValue', value)
 });
 
-function closeModal() {
-  show.value = false;
-  form.reset();
-  attachementFiles.value =[];
-  emit('update:modelValue', false);
-}
-
 function submit() {
-  form.attachements = attachementFiles.value.map(myfile => myfile.file)
-  if (form.id) {
+  // Set attachments from the attachment files
+  form.attachments = attachementFiles.value.map(myfile => myfile.file);
+
+  // Check if editing an existing post
+  if (props.post.id) {
+    form._method = 'PUT'; // Set method to PUT for updates
     form.post(route('post.update', props.post.id), {
-      preserveScroll: false,
+      preserveScroll: true,
       onSuccess: () => {
         closeModal();
         form.reset();
@@ -61,50 +58,88 @@ function submit() {
         console.log(errors);  // Log errors for debugging
       }
     });
-    
   } else {
-   preserveScroll: false,
-  form.post(route('post.create'),{
-    onSuccess:()=>{
-      closeModal();
-      form.reset();
-    }
-  });
-
+    form._method = 'POST'; // Ensure method is POST for new posts
+    form.post(route('post.create'), {
+      preserveScroll: true,
+      onSuccess: () => {
+        closeModal();
+        form.reset();
+      }
+    });
   }
 }
+
+
+
+
+
 async function onAttchementChose($event) {
-  console.log($event.target.files);
-  for(const file of $event.target.files){
-    const myFile ={
+  for (const file of $event.target.files) {
+    const myFile = {
       file,
       url: await readFile(file),
-    }
+    };
     attachementFiles.value.push(myFile);
-     
   }
-  $event.target.files = null;
+  $event.target.value = ''; // Reset the file input value to allow the same file to be selected again
 }
+
 function readFile(file) {
-  return new Promise((res , rej ) => {
+  return new Promise((res, rej) => {
     if (isImage(file)) {
       const reader = new FileReader();
-      reader.onload = () =>{
-        res(reader.result)
-      }
+      reader.onload = () => {
+        res(reader.result);
+      };
       reader.onerror = rej;
-      reader.readAsDataURL(file)
-    }else { 
+      reader.readAsDataURL(file);
+    } else {
       res(null);
     }
-  })
+  });
 }
+
+const Computedattachments = computed(() => {  
+  return [...attachementFiles.value, ...(props.post.attachments || [])];
+});
+
+
 function RemoveImage(myfile) {
-  console.log(attachementFiles.value.filter(f=> f != myfile));
-  
-  attachementFiles.value = attachementFiles.value.filter(f=> f != myfile)
+  if (myfile.file) {
+    attachementFiles.value = attachementFiles.value.filter(f => f !== myfile);
+  } else {
+    form.deleted_file_ids.push(myfile.id);
+    myfile.deleted = true;
+  }
 }
+
+function undoDelete(myfile) {
+  myfile.deleted = false;
+  form_deleted_ids = form_deleted_ids.filter(id => myfile.id != id )
+}
+
+function closeModal() {
+  show.value = false;
+  emit('hide');
+  resetModel();
+}
+function resetModel() {
+  form.reset();
+  
+  attachementFiles.value = [];
+  emit('update:modelValue', false);
+  if (props.post.attachments) {
+    props.post.attachments.forEach(file => {
+      file.deleted = false;
+    });
+  }
+  
+}
+
+
 </script>
+
 
 <template>
   <teleport to="body ">
@@ -124,7 +159,8 @@ function RemoveImage(myfile) {
                 class="w-full max-w-md transform overflow-hidden rounded bg-white text-left align-middle shadow-xl transition-all">
                 <DialogTitle as="h3"
                   class="flex items-center justify-between py-3 px-4 bg-gray-100 text-lg font-medium text-gray-900">
-                  {{ form.id ? ' Update Post' : 'Create Post' }}
+                  {{ post.id ? ' Update Post' : 'Create Post' }}
+                  {{ props.post.attachments }}
                   <button @click="closeModal"
                     class="flex items-center justify-center cursor-pointer bg-opacity-75 hover:bg-opacity-100 text-black font-semibold shadow-sm transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-opacity-50 text-xs sm:text-sm">
                     <XMarkIcon class="h-5 w-5" />
@@ -133,8 +169,8 @@ function RemoveImage(myfile) {
                 <PostUserHeader :post="post" :showTime="false" class="mb-2 m-2" />
                 <div class="p-3 mt-3 ">
                   <ckeditor :editor="editor" v-model="form.body" :config="editorConfig"></ckeditor>
-                  <div class="grid  gap-2  " :class="[  attachementFiles.length == 1 ?'grid-cols-1' : 'grid-cols-2']">
-                    <div v-for="(MyFile) in attachementFiles" class="">
+                  <div class="grid  gap-2  " :class="[  Computedattachments.length == 1 ?'grid-cols-1' : 'grid-cols-2']">
+                    <div v-for="(MyFile) in Computedattachments" class="">
 
                       <div class="mt-4 relative group aspect-square  flex items-center justify-center bg-gray-200">
                         
@@ -147,10 +183,14 @@ function RemoveImage(myfile) {
                           </button>
                           <!-- end download -->
                         </button>
-                        <img v-if="isImage(MyFile.file)" class=" object-fill	 aspect-square" :src="MyFile.url">
-                        <template v-else>
+                        <div v-if="MyFile.deleted"  class="absolute right-0 left-0 bottom-0 py-2 text-center  z-10 text-sm bg-black text-white" >
+                         <ArrowUturnLeftIcon @click="undoDelete(MyFile)" class="h-5 w-5 text-black  cursor-pointer absolute  right-2 bg-white py-1 px-1 rounded-full "/>  to be deleted
+                        </div>
+                        <img v-if="isImage(MyFile.file || MyFile)" class=" object-fill	 aspect-square" :src="MyFile.url" :class="MyFile.deleted ?'opacity-50' : ''">
+                        <div v-else class="flex justify-center items-center flex-col "
+                         :class="MyFile.deleted ?'opacity-50' : ' '">
                           <PaperClipIcon class=" w-16 h-16 " />
-                        </template>
+                        </div>
 
                       </div>
                     </div>

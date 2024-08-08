@@ -108,10 +108,10 @@ function deletePost() {
     </div>
 
     <!-- Download Button -->
-    <button v-if="index < 3" 
+    <a :href="route('post.download',attachment)" v-if="index < 3" 
             class="z-20 w-8 h-8 opacity-0 group-hover:opacity-100 transition-all rounded-full absolute right-2 top-2 bg-gray-700 hover:bg-gray-800 text-gray-100 flex items-center justify-center">
       <ArrowDownTrayIcon class="h-5 w-5" />
-    </button>
+    </a>
 
     <!-- Attachment Preview -->
     <img v-if="isImage(attachment)" class="object-cover aspect-square w-full h-full" :src="attachment.url" :alt="attachment.name">

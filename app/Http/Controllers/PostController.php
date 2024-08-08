@@ -126,4 +126,11 @@ public function store(StorePostRequest $request)
 
         return back();
     }
+
+    public function downloadAttachment(PostAttachements $attachment)  {
+        
+        //TODO check the user if he has the permisson to download the attachmenet
+        return response()->download(Storage::disk('public')->path($attachment->path), $attachment->name);
+
+    }
 }

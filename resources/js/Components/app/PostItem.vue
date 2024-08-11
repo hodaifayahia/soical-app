@@ -1,26 +1,29 @@
 <script setup>
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue';
-import {  PencilIcon ,TrashIcon , EllipsisVerticalIcon ,HandThumbUpIcon , ChatBubbleLeftRightIcon , ArrowDownTrayIcon} from '@heroicons/vue/20/solid';
+import { PencilIcon, TrashIcon, EllipsisVerticalIcon, HandThumbUpIcon, ChatBubbleLeftRightIcon, ArrowDownTrayIcon } from '@heroicons/vue/20/solid';
 import PostUserHeader from '@/Components/app/PostUserHeader.vue';
-import {router} from '@inertiajs/vue3';
-import {  isImage } from "@/helper.js";
+import { router } from '@inertiajs/vue3';
+import { isImage } from "@/helper.js";
 
 
 // Define the props
 const props = defineProps({
     post: Object
 });
-const emit = defineEmits(['editClick']);
- 
-function openEditModel(){
-    emit('editClick',props.post)
+const emit = defineEmits(['editClick' , 'attachmentClick']);
+
+function openEditModel() {
+    emit('editClick', props.post)
 }
 function deletePost() {
     if (window.confirm('are Sure You want to Delate this post')) {
-        router.delete(route('post.destroy',props.post),{
+        router.delete(route('post.destroy', props.post), {
             preserveScroll: true,
         })
     }
+}
+function openAttachment(index) {
+    emit('attachmentClick', props.post, index);
 }
 
 </script>
@@ -50,10 +53,10 @@ function deletePost() {
                             <div class="px-1 py-1">
                                 <MenuItem v-slot="{ active }">
                                 <button @click="openEditModel" :class="[
-                                        
-                                        active ? 'bg-indigo-500 text-white' : 'text-gray-900',
-                                        'group flex w-full items-center rounded-md px-2 py-2 text-sm',
-                                    ]">
+
+                                    active ? 'bg-indigo-500 text-white' : 'text-gray-900',
+                                    'group flex w-full items-center rounded-md px-2 py-2 text-sm',
+                                ]">
                                     <PencilIcon :active="active" class="mr-2 h-5 w-5 text-indigo-400"
                                         aria-hidden="true" />
                                     Edit
@@ -65,9 +68,9 @@ function deletePost() {
                             <div class="px-1 py-1">
                                 <MenuItem v-slot="{ active }">
                                 <button @click="deletePost" :class="[
-                                        active ? 'bg-indigo-500 text-white' : 'text-gray-900',
-                                        'group flex w-full items-center rounded-md px-2 py-2 text-sm',
-                                    ]">
+                                    active ? 'bg-indigo-500 text-white' : 'text-gray-900',
+                                    'group flex w-full items-center rounded-md px-2 py-2 text-sm',
+                                ]">
                                     <TrashIcon :active="active" class="mr-2 h-5 w-5 text-indigo-400"
                                         aria-hidden="true" />
                                     Delete
@@ -85,8 +88,8 @@ function deletePost() {
                 <template v-slot="{ open }">
                     <div>
                         <div class="ck-content-output prose break-words" v-if="!open"
-                            v-html="post.body.substring(0,200)"></div>
-                        <template v-if="post.body.length >200">
+                            v-html="post.body.substring(0, 200)"></div>
+                        <template v-if="post.body.length > 200">
                             <DisclosurePanel class="">
                                 <div class="ck-content-output prose break-words" v-html="post.body"></div>
                             </DisclosurePanel>
@@ -99,32 +102,35 @@ function deletePost() {
             </Disclosure>
         </div>
         <div class="grid gap-2" :class="`grid-cols-${Math.min(props.post.attachments.length, 2)}`">
-  <div v-for="(attachment, index) in props.post.attachments.slice(0, 4)" :key="attachment.id" class="relative group aspect-square bg-blue-100 flex items-center justify-center bg-gray-200">
-    
-    <!-- More Attachments Overlay -->
-    <div v-if="index === 3 && props.post.attachments.length > 3" 
-         class="absolute inset-0 z-10 bg-black/60 text-white flex items-center justify-center text-2xl">
-      +{{ props.post.attachments.length - 3 }} more
-    </div>
+            <div v-for="(attachment, index) in props.post.attachments.slice(0, 4)" :key="attachment.id"
+                class="relative group aspect-square bg-blue-100 flex items-center justify-center bg-gray-200">
+                <div @click="openAttachment(index) "class='cursor-pointer'>
+                    <!-- More Attachments Overlay -->
+                    <div v-if="index === 3 && props.post.attachments.length > 3"
+                        class="absolute inset-0 z-10 bg-black/60 text-white flex items-center justify-center text-2xl">
+                        +{{ props.post.attachments.length - 3 }} more
+                    </div>
 
-    <!-- Download Button -->
-    <a :href="route('post.download',attachment)" v-if="index < 3" 
-            class="z-20 w-8 h-8 opacity-0 group-hover:opacity-100 transition-all rounded-full absolute right-2 top-2 bg-gray-700 hover:bg-gray-800 text-gray-100 flex items-center justify-center">
-      <ArrowDownTrayIcon class="h-5 w-5" />
-    </a>
+                    <!-- Download Button -->
+                    <a :href="route('post.download', attachment)" v-if="index < 3"
+                        class="z-20 w-8 h-8 opacity-0 group-hover:opacity-100 transition-all rounded-full absolute right-2 top-2 bg-gray-700 hover:bg-gray-800 text-gray-100 flex items-center justify-center">
+                        <ArrowDownTrayIcon class="h-5 w-5" />
+                    </a>
 
-    <!-- Attachment Preview -->
-    <img v-if="isImage(attachment)" class="object-cover aspect-square w-full h-full" :src="attachment.url" :alt="attachment.name">
-    
-    <!-- Fallback for Non-Image Attachments -->
-    <template v-else>
-      <div class="flex items-center justify-center text-center text-sm px-4 py-2">
-        {{ attachment.name }}
-      </div>
-    </template>
-    
-  </div>
-</div>
+                    <!-- Attachment Preview -->
+                    <img v-if="isImage(attachment)" class="object-cover aspect-square w-full h-full"
+                        :src="attachment.url" :alt="attachment.name">
+
+                    <!-- Fallback for Non-Image Attachments -->
+                    <template v-else>
+                        <div class="flex items-center justify-center text-center text-sm px-4 py-2">
+                            {{ attachment.name }}
+                        </div>
+                    </template>
+
+                </div>
+            </div>
+        </div>
 
         <div class="flex justify-around  mt-4 ">
             <button

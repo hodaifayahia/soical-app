@@ -160,7 +160,6 @@ function resetModel() {
                 <DialogTitle as="h3"
                   class="flex items-center justify-between py-3 px-4 bg-gray-100 text-lg font-medium text-gray-900">
                   {{ post.id ? ' Update Post' : 'Create Post' }}
-                  {{ props.post.attachments }}
                   <button @click="closeModal"
                     class="flex items-center justify-center cursor-pointer bg-opacity-75 hover:bg-opacity-100 text-black font-semibold shadow-sm transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-opacity-50 text-xs sm:text-sm">
                     <XMarkIcon class="h-5 w-5" />

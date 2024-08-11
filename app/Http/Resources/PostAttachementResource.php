@@ -18,7 +18,7 @@ class PostAttachementResource extends JsonResource
         
         return [
             'id'=> $this->id,
-            'name' > $this->name,
+'name' => $this->name,
             'url'=> Storage::url($this->path),
             'mime'=> $this->mime,
             'size'=> $this->size,

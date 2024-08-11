@@ -12,7 +12,7 @@ class PostAttachements extends Model
     const UPDATED_AT = NULL;
     protected $fillable = [
         'post_id',
-        'name' ,
+        'name',
         'path',
         'mime',
         'size',

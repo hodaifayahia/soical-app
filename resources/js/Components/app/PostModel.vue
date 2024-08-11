@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm, usePage } from '@inertiajs/vue3';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { TransitionRoot, TransitionChild, Dialog, DialogPanel, DialogTitle } from '@headlessui/vue';
 import PostUserHeader from './PostUserHeader.vue';
@@ -16,12 +16,14 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:modelValue', 'hide']);
+const attachementErrors = ref([]);
 
 const attachementFiles = ref([]);
 const editor = ClassicEditor;
 const editorConfig = {
   toolbar: ['heading', '|', 'bold', 'italic', '|', 'link', '|', 'bulletedList', 'numberedList', '|', 'outdent', 'indent', 'blockquote'],
 };
+const attachmentExtentions = usePage().props.attachmentExtentions;
 
 const form = useForm({
   body: "",
@@ -43,6 +45,7 @@ const show = computed({
 
 function submit() {
   // Set attachments from the attachment files
+
   form.attachments = attachementFiles.value.map(myfile => myfile.file);
 
   // Check if editing an existing post
@@ -52,10 +55,9 @@ function submit() {
       preserveScroll: true,
       onSuccess: () => {
         closeModal();
-        form.reset();
       },
       onError: (errors) => {
-        console.log(errors);  // Log errors for debugging
+        processErrors(errors);
       }
     });
   } else {
@@ -65,9 +67,22 @@ function submit() {
       onSuccess: () => {
         closeModal();
         form.reset();
+      },
+      onError: (errors) => {
+        processErrors(errors);
       }
     });
   }
+}
+
+ function processErrors(errors) {
+  for(const key in errors){
+          if(key.includes('.')){
+            const [ , index] = key.split('.');
+            
+            attachementErrors.value[index] = errors[key];
+          }
+        }
 }
 
 
@@ -75,7 +90,14 @@ function submit() {
 
 
 async function onAttchementChose($event) {
+  showExtentionText = false;
   for (const file of $event.target.files) {
+    let paets = file.name.split('.');
+    paets = paets.pop().toLowerCase(ext);
+      if (!attachmentExtentions.includes(ex)) {
+        showExtentionText = true;
+
+      }
     const myFile = {
       file,
       url: await readFile(file),
@@ -126,7 +148,8 @@ function closeModal() {
 }
 function resetModel() {
   form.reset();
-  
+  showExtentionText.value =false;
+  attachementErrors.value = [];
   attachementFiles.value = [];
   emit('update:modelValue', false);
   if (props.post.attachments) {
@@ -136,6 +159,7 @@ function resetModel() {
   }
   
 }
+
 
 
 </script>
@@ -168,12 +192,16 @@ function resetModel() {
                 <PostUserHeader :post="post" :showTime="false" class="mb-2 m-2" />
                 <div class="p-3 mt-3 ">
                   <ckeditor :editor="editor" v-model="form.body" :config="editorConfig"></ckeditor>
+                 <div v-if="attachementFiles.length" class="border-l-4 px-2 border-sky-500 py-3 mt-3 bg-sky-100  border-1 text-gray-800">
+                  The attachement need to be one of these extension  <br>
+                  <small>{{ attachmentExtentions.join(', ') }}</small>
+                 </div>
                   <div class="grid  gap-2  " :class="[  Computedattachments.length == 1 ?'grid-cols-1' : 'grid-cols-2']">
-                    <div v-for="(MyFile) in Computedattachments" class="">
-
-                      <div class="mt-4 relative group aspect-square  flex items-center justify-center bg-gray-200">
+                    <div v-for="(MyFile ,ind) in Computedattachments" class=""> 
+                      <div class="mt-4 relative group aspect-square  flex items-center justify-center bg-gray-200 border-2" :class="attachementErrors[ind] ? 'border-red-500' : ' '">
                         
                         <!-- download -->
+                         
                         <button
                           class="z-20 w-8 h-8 opacity-0 group-hover:opacity-100  transition-all roundend absolute right-2 top-2  bg-gray-700 hover:bg-gray-800 transation-all text-gray-100 flex items-center justify-center">
                           <button @click="RemoveImage(MyFile)"
@@ -189,9 +217,12 @@ function resetModel() {
                         <div v-else class="flex justify-center items-center flex-col "
                          :class="MyFile.deleted ?'opacity-50' : ' '">
                           <PaperClipIcon class=" w-16 h-16 " />
+                          <small class="text-black">{{MyFile.name}}</small>
                         </div>
 
                       </div>
+                      <small class="text-red-500 flex items-center justify-center  " >{{ attachementErrors[ind] }}</small> 
+
                     </div>
                   </div>
                 </div>

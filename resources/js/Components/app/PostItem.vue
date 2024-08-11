@@ -1,6 +1,6 @@
 <script setup>
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue';
-import { PencilIcon, TrashIcon, EllipsisVerticalIcon, HandThumbUpIcon, ChatBubbleLeftRightIcon, ArrowDownTrayIcon } from '@heroicons/vue/20/solid';
+import { PencilIcon, TrashIcon, EllipsisVerticalIcon, HandThumbUpIcon, ChatBubbleLeftRightIcon, ArrowDownTrayIcon,PaperClipIcon } from '@heroicons/vue/20/solid';
 import PostUserHeader from '@/Components/app/PostUserHeader.vue';
 import { router } from '@inertiajs/vue3';
 import { isImage } from "@/helper.js";
@@ -124,7 +124,8 @@ function openAttachment(index) {
                     <!-- Fallback for Non-Image Attachments -->
                     <template v-else>
                         <div class="flex items-center justify-center text-center text-sm px-4 py-2">
-                            {{ attachment.name }}
+                            <PaperClipIcon class=" w-16 h-16 " />
+                            <small class="text-black">{{attachment}}</small>
                         </div>
                     </template>
 

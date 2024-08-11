@@ -11,6 +11,11 @@ class StorePostRequest extends FormRequest
     /**
      * Determine if the user is authorized to make this request.
      */
+    public static array $extantion =  
+   [ 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'svg',
+    'mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm', 'mpeg',
+    'txt', 'csv', 'xml', 'json', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx','pdf'];
+
     public function authorize(): bool
     {
         return true;
@@ -28,11 +33,7 @@ class StorePostRequest extends FormRequest
             'attachments' => ['array', 'max:50'],
             'attachments.*' => [
                 'file',
-                File::types([
-                    'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'svg',
-                    'mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm', 'mpeg',
-                    'txt', 'csv', 'xml', 'json', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf'
-                ])->max(500 * 1024)
+                File::types(self::$extantion)->max(500 * 1024)
             ],
             'user_id' => 'numeric',
         ];
@@ -47,5 +48,10 @@ class StorePostRequest extends FormRequest
             'user_id' => Auth::id(),
             'body' => $this->input('body') ?: " ",
         ]);
+    }
+    public function messages()  {
+        return [
+            'attachments.*'=> 'invalid File',
+        ];
     }
 }

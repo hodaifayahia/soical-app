@@ -17,7 +17,8 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'hide']);
 const attachementErrors = ref([]);
-
+let showExtentionText = ref(false);
+const FormErrors = ref({});
 const attachementFiles = ref([]);
 const editor = ClassicEditor;
 const editorConfig = {
@@ -43,6 +44,18 @@ const show = computed({
   set: (value) => emit('update:modelValue', value)
 });
 
+showExtentionText = computed(()=>{
+  attachementFiles.forEach(myfile => {
+    let file  = myfile.file;
+    let parts = file.name.split('.');
+    const  ex = parts.pop().toLowerCase();
+      if (!attachmentExtentions.includes(ex)) {
+        return true;
+      }
+
+  });
+  return false;
+})
 function submit() {
   // Set attachments from the attachment files
 
@@ -76,6 +89,7 @@ function submit() {
 }
 
  function processErrors(errors) {
+  FormErrors.value = errors;
   for(const key in errors){
           if(key.includes('.')){
             const [ , index] = key.split('.');
@@ -90,14 +104,7 @@ function submit() {
 
 
 async function onAttchementChose($event) {
-  showExtentionText = false;
   for (const file of $event.target.files) {
-    let paets = file.name.split('.');
-    paets = paets.pop().toLowerCase(ext);
-      if (!attachmentExtentions.includes(ex)) {
-        showExtentionText = true;
-
-      }
     const myFile = {
       file,
       url: await readFile(file),
@@ -145,12 +152,16 @@ function closeModal() {
   show.value = false;
   emit('hide');
   resetModel();
+  form.reset();
+
 }
 function resetModel() {
   form.reset();
   showExtentionText.value =false;
   attachementErrors.value = [];
   attachementFiles.value = [];
+  FormErrors.value = [];
+  
   emit('update:modelValue', false);
   if (props.post.attachments) {
     props.post.attachments.forEach(file => {
@@ -195,7 +206,12 @@ function resetModel() {
                  <div v-if="attachementFiles.length" class="border-l-4 px-2 border-sky-500 py-3 mt-3 bg-sky-100  border-1 text-gray-800">
                   The attachement need to be one of these extension  <br>
                   <small>{{ attachmentExtentions.join(', ') }}</small>
-                 </div>
+                </div>
+
+                 <div v-if="FormErrors.NonNullable()" class="border-l-4 px-2 border-red-500 py-3 mt-3 bg-red-100  border-1 text-gray-800">
+                  <small>{{ FormErrors.attachments }}</small>
+                </div>
+
                   <div class="grid  gap-2  " :class="[  Computedattachments.length == 1 ?'grid-cols-1' : 'grid-cols-2']">
                     <div v-for="(MyFile ,ind) in Computedattachments" class=""> 
                       <div class="mt-4 relative group aspect-square  flex items-center justify-center bg-gray-200 border-2" :class="attachementErrors[ind] ? 'border-red-500' : ' '">

@@ -37,11 +37,14 @@ class Post extends Model
     protected static function boot()
     {
         parent::boot();
-
+    
         static::deleted(function (self $model) {
-            // Delete the file from storage when the model is deleted
-            Storage::disk('public')->delete($model->path);
+            if ($model->path) {
+                // Delete the file from storage when the model is deleted
+                Storage::disk('public')->delete($model->path);
+            }
         });
     }
+    
     
 }

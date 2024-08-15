@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\TotalFileSize;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\File;
@@ -30,10 +31,10 @@ class StorePostRequest extends FormRequest
     {
         return [
             'body' => ['nullable', 'string'],
-            'attachments' => ['array', 'max:50'],
+            'attachments' => [ 'array', 'max:50', new TotalFileSize(1* 1024 *1024*1024)], // Max 50 files, total size <= 1 GB (1 * 1024 * 1024 * 1024 bytes)
             'attachments.*' => [
                 'file',
-                File::types(self::$extantion)->max(500 * 1024)
+                File::types(self::$extantion)
             ],
             'user_id' => 'numeric',
         ];
@@ -51,7 +52,10 @@ class StorePostRequest extends FormRequest
     }
     public function messages()  {
         return [
-            'attachments.*'=> 'invalid File',
+            'attachments.max' => 'You can upload a maximum of 50 attachments.',
+            'attachments.*.file' => 'Each attachment must be a valid file.',
+            'attachments.*.mimes' => 'invalid file type attachments.',
+            // Custom message for the TotalFileSize rule
         ];
     }
 }

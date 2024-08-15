@@ -123,9 +123,9 @@ function openAttachment(index) {
 
                     <!-- Fallback for Non-Image Attachments -->
                     <template v-else>
-                        <div class="flex items-center justify-center text-center text-sm px-4 py-2">
+                        <div class="flex items-center justify-center flex-col text-center text-sm px-4 py-2">
                             <PaperClipIcon class=" w-16 h-16 " />
-                            <small class="text-black">{{attachment}}</small>
+                            <small class=" text-black text-base">{{attachment.name}}</small>
                         </div>
                     </template>
 

@@ -4,6 +4,7 @@ import { PencilIcon, TrashIcon, EllipsisVerticalIcon, HandThumbUpIcon, ChatBubbl
 import PostUserHeader from '@/Components/app/PostUserHeader.vue';
 import { router } from '@inertiajs/vue3';
 import { isImage } from "@/helper.js";
+import  axiosClient from '@/axiosClient.js';
 
 
 // Define the props
@@ -25,6 +26,18 @@ function deletePost() {
 function openAttachment(index) {
     emit('attachmentClick', props.post, index);
 }
+function sendReaction() {
+    axiosClient.post(route('post.reaction',props.post), {
+        reaction: 'Like'
+    })
+    .then(({data}) => {
+    props.post.num_of_reaction = data.num_of_reaction;
+    props.post.current_user_has_reaction = data.current_user_has_reaction;
+});
+}
+
+
+
 
 </script>
 
@@ -135,10 +148,14 @@ function openAttachment(index) {
 
         <div class="flex justify-around  mt-4 ">
             <button
-                class="gap-1  rounded bg-gray-100 hover:bg-gray-200 py-3 px-10   flex items-center space-x-1 text-gray-500 hover:text-blue-200">
-
-                <HandThumbUpIcon class='w-5 h-5' />
-                <span>Like</span>
+            @click="sendReaction"
+                class="gap-1  rounded bg-gray-100 py-3 px-10   flex items-center space-x-1 text-gray-500 ">
+                <div class="flex justify-center items-center pr-1">
+                    <HandThumbUpIcon class='w-5 h-5 ' :class="[post.current_user_has_reaction ? 'text-blue-600' : ' ']" />
+                    <span class="pl-1">{{ post.num_of_reaction }}</span>
+                </div>
+                <span>Like
+                </span>
             </button>
             <button
                 class="gap-1  rounded bg-gray-100 hover:bg-gray-200 py-3 px-10   flex items-center space-x-1 text-gray-500 hover:text-blue-200">

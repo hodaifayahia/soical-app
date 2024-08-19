@@ -23,6 +23,8 @@ class PostResource extends JsonResource
             'user' => new UserResource($this->user), // Remove `new` keyword
             'group' => $this->group,
             'attachments' => PostAttachementResource::collection($this->attachments), // Corrected spelling
+            'num_of_reaction' => $this->reactions_count,
+            'current_user_has_reaction' => $this->reactions->count() > 0 ,
         ];
     }
 }

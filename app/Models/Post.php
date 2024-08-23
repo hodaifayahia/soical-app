@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Comment;
 use App\Models\Groupe;
 use App\Models\PostAttachements;
 use App\Models\PostReaction;
@@ -38,6 +39,12 @@ class Post extends Model
 
     public function reactions() : HasMany {
         return $this->hasMany(PostReaction::class);
+    }
+    public function comments() : HasMany {
+        return $this->hasMany(Comment::class);
+    }
+    public function latest5Comment() : HasMany {
+        return $this->hasMany(Comment::class)->latest()->limit(5);
     }
 
     protected static function boot()

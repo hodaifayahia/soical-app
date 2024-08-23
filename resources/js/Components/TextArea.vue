@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, defineProps, defineExpose, defineModel } from 'vue';
+import { onMounted, ref, defineProps, defineExpose, defineModel ,watch} from 'vue';
 const model = defineModel({
   type: String,
   required: false,
@@ -27,16 +27,20 @@ onMounted(() => {
   }
   adjustHeight(); // Initial adjustment
 });
+watch(()=>model.value ,()=>{
+  setTimeout(() => {
+      adjustHeight();
+  }, 10);
+})
 
 function onInputChange($event) {
   model.value = $event.target.value;
-  adjustHeight();
 }
 
 function adjustHeight() {
   if (props.autoResize) {
     input.value.style.height = 'auto';
-    input.value.style.height = input.value.scrollHeight + 'px';
+    input.value.style.height = input.value.scrollHeight + 2 + 'px';
   }
 
 }
@@ -44,7 +48,7 @@ function adjustHeight() {
 
 <template>
   <textarea
-    class=""
+    class="overflow-auto"
     :value="model"
     ref="input"
     :placeholder="placeholder"

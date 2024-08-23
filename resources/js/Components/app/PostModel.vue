@@ -208,7 +208,7 @@ function resetModel() {
                   <small>{{ attachmentExtentions.join(', ') }}</small>
                 </div>
 
-                 <div v-if="FormErrors.NonNullable()" class="border-l-4 px-2 border-red-500 py-3 mt-3 bg-red-100  border-1 text-gray-800">
+                 <div v-if="FormErrors.attachments" class="border-l-4 px-2 border-red-500 py-3 mt-3 bg-red-100  border-1 text-gray-800">
                   <small>{{ FormErrors.attachments }}</small>
                 </div>
 

@@ -1,6 +1,6 @@
 <script setup>
-import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue';
-import { PencilIcon, TrashIcon, EllipsisVerticalIcon, HandThumbUpIcon, ChatBubbleLeftRightIcon, ArrowDownTrayIcon, PaperClipIcon } from '@heroicons/vue/20/solid';
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
+import {  HandThumbUpIcon, ChatBubbleLeftRightIcon, ArrowDownTrayIcon, PaperClipIcon } from '@heroicons/vue/20/solid';
 import PostUserHeader from '@/Components/app/PostUserHeader.vue';
 import { router, usePage } from '@inertiajs/vue3';
 import { isImage } from "@/helper.js";
@@ -9,6 +9,7 @@ import indigoButton from '@/Components/app/indigoButton.vue';
 import { ref } from 'vue';
 import TextArea from '@/Components/TextArea.vue';
 import ReadlessReadMore from '@/Components/app/ReadlessReadMore.vue';
+import EditDeleteDropDown from '@/Components/app/EditDeleteDropDown.vue';
 
 
 
@@ -19,7 +20,7 @@ const props = defineProps({
 const newCommentText = ref('');
 const authUser = usePage().props.auth.user;
 const emit = defineEmits(['editClick', 'attachmentClick']);
-
+const edittingComment = ref(null); 
 function openEditModel() {
     emit('editClick', props.post)
 }
@@ -53,7 +54,37 @@ function createComment() {
 
         });
 }
+function StartEditComment(comment) {
 
+    edittingComment.value = {
+        id:comment.id,
+        comment:comment.comment.replace('<br\s*\/?>/gi','\n')
+    };
+}
+function deleteComment(comment) {
+    if (!window.confirm('are sure u want to delete this comment ')) {
+        return false;
+    }
+     axiosClient.delete(route('post.comment.delate', comment.id))
+        .then(({ data }) => {
+            props.post.comments = props.post.comments.filters(c => c.id != comment.id),
+            props.post.num_of_comment--;
+
+        });
+}
+function updateComment() {
+     axiosClient.put(route('post.comment.update', edittingComment.value.id),edittingComment.value)
+        .then(({ data }) => {
+            edittingComment.value = null;
+            props.post.comments = props.post.comments.map((c)=>{
+                if(c.id = data.id){
+                    return data;
+                }
+                return c;
+            })
+
+        });
+}
 
 
 </script>
@@ -64,59 +95,13 @@ function createComment() {
         <div class="flex items-center mb-4 justify-between">
             <PostUserHeader :post="post" :showTime="true" />
             <div>
-                <Menu as="div" class="relative inline-block text-left">
-                    <div>
-                        <MenuButton
-                            class="inline-flex w-full justify-center rounded-mdtext-sm font-medium text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
-
-                            <EllipsisVerticalIcon class=" h-6 w-6 text-black hover:text-black" aria-hidden="true" />
-                        </MenuButton>
-                    </div>
-                    
-
-                    <transition enter-active-class="transition duration-100 ease-out"
-                        enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100"
-                        leave-active-class="transition duration-75 ease-in"
-                        leave-from-class="transform scale-100 opacity-100"
-                        leave-to-class="transform scale-95 opacity-0">
-                        <MenuItems
-                            class="absolute z-20 right-0 mt-2 w-36 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
-                            <div class="px-1 py-1">
-                                <MenuItem v-slot="{ active }">
-                                <button @click="openEditModel" :class="[
-
-                                    active ? 'bg-indigo-500 text-white' : 'text-gray-900',
-                                    'group flex w-full items-center rounded-md px-2 py-2 text-sm',
-                                ]">
-                                    <PencilIcon :active="active" class="mr-2 h-5 w-5 text-indigo-400"
-                                        aria-hidden="true" />
-                                    Edit
-                                </button>
-                                </MenuItem>
-
-                            </div>
-
-                            <div class="px-1 py-1">
-                                <MenuItem v-slot="{ active }">
-                                <button @click="deletePost" :class="[
-                                    active ? 'bg-indigo-500 text-white' : 'text-gray-900',
-                                    'group flex w-full items-center rounded-md px-2 py-2 text-sm',
-                                ]">
-                                    <TrashIcon :active="active" class="mr-2 h-5 w-5 text-indigo-400"
-                                        aria-hidden="true" />
-                                    Delete
-                                </button>
-                                </MenuItem>
-                            </div>
-                        </MenuItems>
-                    </transition>
-                </Menu>
+                <EditDeleteDropDown :user="post.user" @edit="openEditModel" @delete="deletePost" />
             </div>
 
         </div>
         <div>
-           <ReadlessReadMore :Content="post.body" ContentClass = "">
-           </ReadlessReadMore>
+            <ReadlessReadMore :Content="post.body" ContentClass="">
+            </ReadlessReadMore>
         </div>
         <div class="grid gap-2" :class="`grid-cols-${Math.min(props.post.attachments.length, 2)}`">
             <div v-for="(attachment, index) in props.post.attachments.slice(0, 4)" :key="attachment.id"
@@ -204,31 +189,51 @@ function createComment() {
                                         class="w-10 h-10 rounded-full mr-4 border-2 transition-all hover:border-cyan-400">
                                 </a>
                                 <!-- Comment Content -->
-                                <div class="flex-1">
+                                <div class="flex-1 ">
                                     <div class="flex items-center justify-between">
                                         <!-- User Name and Time -->
                                         <div>
                                             <h4 class="font-semibold text-gray-800">{{ comment.user.name }}</h4>
                                             <span class="text-sm text-gray-500">{{ comment.created_at }}</span>
                                         </div>
-                                      
+
                                     </div>
-                                    <!-- Comment Text -->
-                                    <ReadlessReadMore :Content="comment.comment" ContentClass = "text-gray-700 mt-2">
+                                    <EditDeleteDropDown class="flex  justify-end bottom-8 " :user="comment.user" @edit="StartEditComment(comment)"
+                                        @delete="deleteComment(comment)" />
+
+
+                                    <div v-if="edittingComment && edittingComment.id == comment.id" class="m-2">
+
+                                        <TextArea v-model="edittingComment.comment" name="" rows="1"
+                                            class="w-full  resize-none max-h-[160px] rounded-r-none "
+                                            placeholder="Enter your COmment Here" d="" />
+                                        <div class="flex gap-2 justify-end">
+                                            
+                                            <button class="text-indigo-500 " @click=" edittingComment = null" >Cancel</button>
+                                            <indigoButton @click="updateComment(comment)" class="w-[100px]  ">
+                                                Update
+                                            </indigoButton>
+                                        </div>
+                                    </div>
+
+                                    <ReadlessReadMore v-else :Content="comment.comment" ContentClass="text-gray-700 mt-2">
                                     </ReadlessReadMore>
                                 </div>
+
+
                             </div>
+
                         </div>
                     </div>
-                   
+
                     <div>
 
                     </div>
                 </div>
 
 
-    </DisclosurePanel>
-    </Disclosure>
+            </DisclosurePanel>
+        </Disclosure>
     </div>
 
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\PostReactionEnum;
 use App\Http\Requests\StorePostRequest;
+use App\Http\Requests\UpdateCommentRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Http\Resources\CommentResource;
 use App\Models\Comment;
@@ -178,6 +179,24 @@ public function store(StorePostRequest $request)
         ]);
 
         return response(new CommentResource($comment) , 201);
+    }
+
+   public function DeleteComment(Comment $comment)  {
+        if ($comment->user_id != Auth::id()) {
+            return response("You Don't Have the permission to do so",403);
+        }
+        $comment->delete(); 
+        return response("" , 204);
+    }
+    
+   public function updateComment( UpdateCommentRequest $request , Comment $comment)  {
+        $data = $request->validated();
+        
+        $comment->update([
+            'comment' => nl2br($data['comment'])
+        ]);
+
+        return new CommentResource($comment);
     }
 }
     

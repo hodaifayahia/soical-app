@@ -29,6 +29,10 @@ Route::middleware('auth')->group(function () {
         ->name('post.reaction');
     Route::post('/post/{post}/comment', [PostController::class, 'CreateComment'])
         ->name('post.comment.create');
+    Route::delete('/comment/{comment}', [PostController::class, 'DeleteComment'])
+        ->name('post.comment.delate');
+    Route::put('/comment/{comment}', [PostController::class, 'updateComment'])
+        ->name('post.comment.update');
     
     
     }

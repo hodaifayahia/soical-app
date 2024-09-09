@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\PostReactionEnum;
+use App\Enums\ReactionEnum;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdateCommentRequest;
 use App\Http\Requests\UpdatePostRequest;
@@ -10,7 +10,7 @@ use App\Http\Resources\CommentResource;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\PostAttachements;
-use App\Models\PostReaction;
+use App\Models\Reaction;
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -146,20 +146,21 @@ public function store(StorePostRequest $request)
             'reaction' => 'required|in:Like,Dislike,Love', // Adjust validation rules
         ]);
         $user_id = auth()->id();
-        $reaction = PostReaction::where('user_id',$user_id)->where('post_id', $post->id)->first();
+        $reaction = Reaction::where('user_id',$user_id)->where('object_id', $post->id)->where('object_type' , Post::class)->first();
         if ($reaction) {
             $hasReaction = false;
             $reaction->delete();
         } else {
             $hasReaction = true;
 
-            PostReaction::create([
-                'post_id' => $post->id,
+            Reaction::create([
+                'object_id' => $post->id,
+                'object_type' => Post::class,
                 'user_id' =>$user_id, // Assuming user authentication
                 'type' => $data['reaction']
             ]);
             
-        }      $reactions =  PostReaction::where('post_id',$post->id)->count();
+        }      $reactions =  Reaction::where('object_id', $post->id)->where('object_type' , Post::class)->count();
     
         return response([
             'num_of_reaction' => $reactions,
@@ -167,26 +168,29 @@ public function store(StorePostRequest $request)
         ]);
     }
     
-    function CreateComment(Request $request , Post $post)  {
+    public function createComment(Request $request, Post $post)
+    {
         $data = $request->validate([
-            'comment'=> ['required'],
+            'comment' => ['required']
         ]);
 
-      $comment = Comment::create([
-            'user_id' => Auth::id(),
-            'comment' => nl2br($data['comment']) ,
-            'post_id' => $post->id
+        $comment = Comment::create([
+            'post_id' => $post->id,
+            'comment' => nl2br($data['comment']),
+            'user_id' => Auth::id()
         ]);
-
-        return response(new CommentResource($comment) , 201);
+        
+        return response(new CommentResource($comment), 201);
     }
 
-   public function DeleteComment(Comment $comment)  {
-        if ($comment->user_id != Auth::id()) {
-            return response("You Don't Have the permission to do so",403);
+    public function deleteComment(Comment $comment)
+    {
+        if ($comment->user_id !== Auth::id()) {
+            return response("You don't have permission to delete this comment.", 403);
         }
-        $comment->delete(); 
-        return response("" , 204);
+
+        $comment->delete();
+        return response('', 204);
     }
     
    public function updateComment( UpdateCommentRequest $request , Comment $comment)  {
@@ -198,6 +202,46 @@ public function store(StorePostRequest $request)
 
         return new CommentResource($comment);
     }
-}
+
+    public function CommentReactions(Request $request, Comment $comment) {
+       
+            // Validate request data
+            $data = $request->validate([
+                'reaction' => 'required|in:Like,Dislike,Love',
+            ]);
+    
+            $user_id = auth()->id();
+    
+            // Find existing reaction
+            $reaction = Reaction::where('user_id', $user_id)
+                                ->where('object_id', $comment->id)
+                                ->where('object_type', Comment::class)
+                                ->first();
+    
+            // Determine if user has reacted
+            $hasReaction = false;
+            if ($reaction) {
+                $hasReaction = true;
+                $reaction->delete(); // Remove existing reaction
+            } else {
+                // Create new reaction
+                Reaction::create([
+                    'object_id' => $comment->id,
+                    'object_type' => Comment::class,
+                    'user_id' => $user_id,
+                    'type' => $data['reaction']
+                ]);
+            }
+    
+            // Count reactions for the comment
+             $reactions =  Reaction::where('object_id', $comment->id)->where('object_type' , Comment::class)->count();
+            // Return response with reaction count and user reaction status
+            return response()->json([
+                'num_of_reaction' => $reactions,
+                'current_user_has_reaction' => $hasReaction,
+            ]);
+    
     
 
+    }
+}

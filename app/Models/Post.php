@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+
 
 class Post extends Model
 {
@@ -20,6 +22,8 @@ class Post extends Model
     protected $fillable = [
         'body',
         'user_id',
+        'comments',
+        
     ];
 
     public function user() 
@@ -37,12 +41,18 @@ class Post extends Model
         return $this->hasMany(PostAttachements::class)->latest(); // Corrected spelling
     }
 
-    public function reactions() : HasMany {
-        return $this->hasMany(PostReaction::class);
+  
+    
+    public function reactions()
+    {
+        return $this->morphMany(Reaction::class, 'object');
     }
-    public function comments() : HasMany {
+    
+    public function comments()
+    {
         return $this->hasMany(Comment::class);
     }
+    
     public function latest5Comment() : HasMany {
         return $this->hasMany(Comment::class)->latest()->limit(5);
     }

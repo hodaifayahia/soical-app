@@ -28,11 +28,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/post/{post}/reaction', [PostController::class, 'PostReaction'])
         ->name('post.reaction');
     Route::post('/post/{post}/comment', [PostController::class, 'CreateComment'])
-        ->name('post.comment.create');
+        ->name('comment.create');
     Route::delete('/comment/{comment}', [PostController::class, 'DeleteComment'])
-        ->name('post.comment.delate');
+        ->name('comment.delate');
     Route::put('/comment/{comment}', [PostController::class, 'updateComment'])
-        ->name('post.comment.update');
+        ->name('comment.update');
+    Route::post('/comment/{comment}/reactions', [PostController::class, 'CommentReactions'])
+        ->name('comment.CommentReactions');
     
     
     }

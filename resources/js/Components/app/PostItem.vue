@@ -1,6 +1,6 @@
 <script setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
-import { HandThumbUpIcon, ChatBubbleLeftRightIcon, ArrowDownTrayIcon, PaperClipIcon , ArrowPathIcon } from '@heroicons/vue/20/solid';
+import { HandThumbUpIcon, ChatBubbleLeftRightIcon , ArrowPathIcon } from '@heroicons/vue/20/solid';
 import PostUserHeader from '@/Components/app/PostUserHeader.vue';
 import { router, usePage } from '@inertiajs/vue3';
 import { isImage } from "@/helper.js";
@@ -10,6 +10,7 @@ import { ref } from 'vue';
 import TextArea from '@/Components/TextArea.vue';
 import ReadlessReadMore from '@/Components/app/ReadlessReadMore.vue';
 import EditDeleteDropDown from '@/Components/app/EditDeleteDropDown.vue';
+import PostAttachments from '@/Components/app/PostAttachments.vue'
 
 
 
@@ -120,35 +121,7 @@ function sendcommentReaction(comment){
             </ReadlessReadMore>
         </div>
         <div class="grid gap-2" :class="`grid-cols-${Math.min(props.post.attachments.length, 2)}`">
-            <div v-for="(attachment, index) in props.post.attachments.slice(0, 4)" :key="attachment.id"
-                class="relative group aspect-square bg-blue-100 flex items-center justify-center bg-gray-200">
-                <div @click="openAttachment(index)" class='cursor-pointer'>
-                    <!-- More Attachments Overlay -->
-                    <div v-if="index === 3 && props.post.attachments.length > 3"
-                        class="absolute inset-0 z-10 bg-black/60 text-white flex items-center justify-center text-2xl">
-                        +{{ props.post.attachments.length - 3 }} more
-                    </div>
-
-                    <!-- Download Button -->
-                    <a :href="route('post.download', attachment)" v-if="index < 3"
-                        class="z-20 w-8 h-8 opacity-0 group-hover:opacity-100 transition-all rounded-full absolute right-2 top-2 bg-gray-700 hover:bg-gray-800 text-gray-100 flex items-center justify-center">
-                        <ArrowDownTrayIcon class="h-5 w-5" />
-                    </a>
-
-                    <!-- Attachment Preview -->
-                    <img v-if="isImage(attachment)" class="object-cover aspect-square w-full h-full"
-                        :src="attachment.url" :alt="attachment.name">
-
-                    <!-- Fallback for Non-Image Attachments -->
-                    <template v-else>
-                        <div class="flex items-center justify-center flex-col text-center text-sm px-4 py-2">
-                            <PaperClipIcon class=" w-16 h-16 " />
-                            <small class=" text-black text-base">{{ attachment.name }}</small>
-                        </div>
-                    </template>
-
-                </div>
-            </div>
+            <PostAttachments :attachments="post.attachments" @clickAttachement="openAttachment(ind)"  />
         </div>
         <Disclosure v-slot="{ open }">
             <div class="flex justify-around mt-2 gap-2 ">
@@ -211,7 +184,6 @@ function sendcommentReaction(comment){
                                         <!-- User Name and Time -->
                                         <div>
                                             <h4 class="font-semibold text-gray-800"><pre>{{ comment.user.name }}</pre></h4>
-                                            {{ }}
                                             <span class="text-sm text-gray-500">{{ comment.created_at }}</span>
                                         </div>
 

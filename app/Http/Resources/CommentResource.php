@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\CommentResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -21,7 +22,10 @@ class CommentResource extends JsonResource
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
             'num_of_reaction' => $this->reactions_count,
+            'parent_id' => $this->parent_id,
+            'num_of_comment' => $this->comments_count,
             'current_user_has_reaction' => $this->reactions->count() > 0 ,
+            'comments' => CommentResource::collection($this->comments) ,
             'user' => [
                 "id"=> $this->user->id,
                 "name"=> $this->user->name,

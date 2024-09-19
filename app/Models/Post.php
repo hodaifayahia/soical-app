@@ -53,9 +53,10 @@ class Post extends Model
         return $this->hasMany(Comment::class);
     }
     
-    public function latest5Comment() : HasMany {
-        return $this->hasMany(Comment::class)->latest()->limit(5);
-    }
+    // Post.php
+
+
+   
 
     protected static function boot()
     {

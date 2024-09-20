@@ -17,6 +17,7 @@ class PostResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $comments = $this->comments;
         return [
             'id' => $this->id,
             'body' => $this->body,
@@ -26,9 +27,29 @@ class PostResource extends JsonResource
             'group' => $this->group,
             'attachments' => PostAttachementResource::collection($this->attachments), // Corrected spelling
             'num_of_reaction' => $this->reactions_count,
-            'num_of_comment' => $this->comments_count,
+            'num_of_comment' => count($comments),
             'current_user_has_reaction' => $this->reactions->count() > 0 ,
-            'Comments' => CommentResource::collection($this->comments) ,
+            'Comments' => self::convertCommentsIntoTree($comments) ,
         ];
     }
+
+
+
+    private static function convertCommentsIntoTree($Comments, $parentId = null):array
+{
+    $CommentTree = [];
+
+    foreach ($Comments as $Comment) {
+        if ($Comment->parent_id === $parentId) {
+            // find parent comment if they have a parent id 
+            $children = self::convertCommentsIntoTree($Comments, $Comment->id);
+            $Comment->childComments= $children;
+           
+             $Comment->NumOfcomments =  collect($children)->sum('NumOfcomments') +count($children);
+            $CommentTree[] =  new CommentResource($Comment) ;
+        }
+    }
+
+    return $CommentTree;
+}
 }

@@ -23,9 +23,9 @@ class CommentResource extends JsonResource
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
             'num_of_reaction' => $this->reactions_count,
             'parent_id' => $this->parent_id,
-            'num_of_comment' => $this->comments_count,
+            'num_of_comment' =>$this->NumOfcomments , // TODO
             'current_user_has_reaction' => $this->reactions->count() > 0 ,
-            'comments' => CommentResource::collection($this->comments) ,
+            'comments' => $this->childComments ,
             'user' => [
                 "id"=> $this->user->id,
                 "name"=> $this->user->name,

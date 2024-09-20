@@ -9,11 +9,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;      
 
 class Comment extends Model
-{
+{   
     use HasFactory;
+    public array $childComments =[];
+    public  int $NumOfcomments = 0;
     protected $fillable = ['post_id', 'comment', 'user_id', 'parent_id'];
 
 
@@ -33,6 +35,8 @@ public function reactions()
 {
     return $this->morphMany(Reaction::class, 'object');
 }
+
+
     
  
 }

@@ -23,6 +23,7 @@ const edittingComment = ref(null);
 
     }
 })
+const emit = defineEmits(['DeleteComment','CreateComment']);
 
 function createComment() {
   axiosClient.post(route('comment.create', props.post), {
@@ -36,6 +37,7 @@ function createComment() {
       props.ParentComment.num_of_comment++;
     } 
       props.post.num_of_comment++;
+      emit('CreateComment',data)
     
   })
   .catch((error) => {
@@ -59,10 +61,16 @@ function deleteComment(comment) {
     }
     axiosClient.delete(route('comment.delate', comment.id))
         .then(({ data }) => {
-           props.data.comments =props.data.comments.filter(c => c.id != comment.id);
-            props.post.num_of_comment--;
+            const index = props.data.comments.findIndex(c => c.id == comment.id)
+           props.data.comments.splice(index , 1);
+           if (props.ParentComment) {
+            props.ParentComment.num_of_comment--;
+           }
+           props.post.num_of_comment--;
 
-
+           
+           
+           emit('DeleteComment',comment)
         });
 }
 function updateComment() {
@@ -90,6 +98,23 @@ function sendcommentReaction(comment) {
         });
 }
 
+
+function oncreateComment(comment) {
+    if (props.ParentComment) {
+        props.ParentComment.num_of_comment++;
+    }
+    emit('CreateComment',comment)
+
+
+}
+function ondeleteComment(comment) {
+    if (props.ParentComment) {
+        props.ParentComment.num_of_comment--;
+    }
+    emit('DeleteComment',comment)
+
+
+}
 </script>
 
 <template>
@@ -116,6 +141,7 @@ function sendcommentReaction(comment) {
         </div>
         <div class="mt-4">
                 <div v-for="comment in props.data.comments" :key="comment.id" class="bg-white rounded-lg p-4 shadow-md mb-4">
+
                     <div class="flex items-start">
                         <!-- User Avatar -->
                         <a href="javascript:void(0)">
@@ -183,7 +209,12 @@ function sendcommentReaction(comment) {
                                 <!-- Subcomments Section -->
                                 <DisclosurePanel>
                                     <div class="mt-2 ml-6">
-                                        <CommentList :post="post" :data="comment" :ParentComment="comment" />
+                                        <CommentList :post="post"
+                                         :data="comment"
+                                          :ParentComment="comment"
+                                          @DeleteComment="ondeleteComment"
+                                          @CreateComment="oncreateComment"
+                                          />
 
                                     </div>
                                 </DisclosurePanel>

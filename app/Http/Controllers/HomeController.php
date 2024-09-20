@@ -14,35 +14,19 @@ class HomeController extends Controller
     {
         $userId = Auth::id();
         
-        $posts = Post::query()
-            ->withCount('reactions') // Count reactions on the post
-            ->withCount('comments')  // Count comments on the post
+        $posts = Post::query() // select * form post 
+            ->withCount('reactions') // selct count form reactions
             ->with([
                 'comments' => function ($query) use ($userId) {
-                    $query->withCount('reactions');
-                    $query
-                        ->whereNull('parent_id')
-                        ->withCount('reactions')
-                        ->withCount('comments')
-                        ->with([
-                            'reactions' => function ($query) use ($userId) {
-                                $query->where('user_id', $userId);
-                            },
-                            'comments' => function ($query) use ($userId) {
-                                $query->
-                                 withCount('reactions') // Count reactions on child comments
-                                 ->with([
-                                    'reactions' => function ($query) use ($userId) {
-                                        $query->where('user_id', $userId);
-                                    }
-                                ]);
-                            }
-                        ]);
+                    $query->withCount('reactions'); // selct count form reactions // select * from comments where post (1,2..)
+                      
+                }, 'reactions' => function ($query) use ($userId) {
+                    $query->where('user_id', $userId); //selct reaction in comments where in (1,1,3)
                 }
             ])
             
             ->latest() // Order posts by latest
-            ->paginate(20); // Paginate the results
+            ->paginate(1); // Paginate the results
         
         return Inertia::render('home', [
             'posts' => PostResource::collection($posts),

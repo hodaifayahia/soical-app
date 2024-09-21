@@ -100,3 +100,20 @@
     padding-left: 1.5em;
     padding-right: 1.5em;
 }
+/* Custom Scrollbar */
+.comment-list::-webkit-scrollbar {
+  width: 7px; /* Width of the scrollbar */
+}
+
+.comment-list::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Background of the scrollbar track */
+}
+
+.comment-list::-webkit-scrollbar-thumb {
+  background: hsl(219, 95%, 90%); /* Color of the scrollbar thumb */
+  border-radius: 10px; /* Rounded corners for the thumb */
+}
+
+.comment-list::-webkit-scrollbar-thumb:hover {
+  background: #92b7fc; /* Color of the thumb on hover */
+}

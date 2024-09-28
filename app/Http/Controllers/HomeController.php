@@ -14,7 +14,7 @@ class HomeController extends Controller
     {
         $userId = Auth::id();
         
-        $posts = Post::query() // select * form post 
+        $posts = Post::query()// select * form post 
             ->withCount('reactions') // selct count form reactions
             ->with([
                 'comments' => function ($query) use ($userId) {
@@ -26,10 +26,17 @@ class HomeController extends Controller
             ])
             
             ->latest() // Order posts by latest
-            ->paginate(1); // Paginate the results
+            ->paginate(10); // Paginate the results
+
+            $posts = PostResource::collection($posts);
+
+            if ($request->wantsJson()) {
+                return $posts;
+            }
+    
         
         return Inertia::render('home', [
-            'posts' => PostResource::collection($posts),
+            'posts' => $posts,
         ]);
     }
 }

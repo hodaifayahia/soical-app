@@ -2,6 +2,10 @@
 
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
 import GroupListItems from '@/Components/app/GroupListItems.vue' ;
+import GroupModel from '@/Components/app/GroupModel.vue';
+import { ref } from 'vue'
+
+const ShowNewGroupModel = ref(false);
 
 </script>
 <template>
@@ -35,9 +39,13 @@ import GroupListItems from '@/Components/app/GroupListItems.vue' ;
     </div>
     <!-- Large screens: Always show content -->
     <div class="hidden lg:flex flex-col flex-1 h-full ">
-       <h2 class="text-xl font-bold m-8">My Group </h2>
-        <GroupListItems/>
+        <div class="flex justify-between items-center">
+          <h2 class="text-xl font-bold m-8">My Group </h2>
+          <button @click="ShowNewGroupModel = true" class="bg-indigo-500 hover:bg-indigo-600 px-1 py-2 text-white  rounded text-sm ml-2">New Group</button>
+        </div>
+        <GroupListItems />
     </div>
+    <GroupModel  v-model="ShowNewGroupModel"  />
   </div>
 </template>
 

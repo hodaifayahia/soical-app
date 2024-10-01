@@ -88,7 +88,6 @@ onMounted(() => {
 
 <template>
     <div>
-      {{ allPosts.data.length }}
       <PostItem v-for="post in allPosts.data" :key="post.id" :post="post"
         @attachmentClick='openAttachmentPreviewModel'
         @editClick="openEditModel" />

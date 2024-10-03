@@ -33,13 +33,16 @@ class GroupController extends Controller
         $group =  Group::create($data);
 
         $groupUser =[
-            'status' =>GroupStatutsEnum::APPROVER,
+            'status' =>GroupStatutsEnum::APPROVED,
             'role' =>GroupRoleEnum::ADMIN,
             'user_id'=>Auth::id(),
             'group_id'=>$group->id,
             'created_by'=>Auth::id()
         ];
         $groupUserdata =  GroupeUser::create($groupUser);
+        $group->role = $groupUser['role'];
+        $group->status = $groupUser['status'];
+
         return response(new GroupResource($group), 201);
     }
 

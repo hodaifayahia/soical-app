@@ -6,7 +6,8 @@ import CreatePost from '@/Components/app/CreatePost.vue'; // Adjust the path as 
 import PostList from '@/Components/app/PostList.vue'; // Adjust the path as necessary
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'; // Adjust the path as necessary
  defineProps ({
-    posts: Object
+    posts: Object,
+    groups:Array,
 })
 
 </script>
@@ -17,7 +18,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'; // Adjust t
      
     <div class="grid lg:grid-cols-12 gap-3 p-2 h-full">
         <div class="lg:col-span-3 lg:order-1  h-full overflow-auto">
-           <GroupList />
+           <GroupList :groups="groups" />
         </div>
         <div class="lg:col-span-3 lg:order-3 bg-gray-100 h-full overflow-auto ">
             <FollowingList  />

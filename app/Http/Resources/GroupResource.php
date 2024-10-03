@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Str;
 
 class GroupResource extends JsonResource
 {
@@ -18,11 +19,15 @@ class GroupResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
-            'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
             'user_id' => $this->user_id,
             'slug' => $this->slug,
-            // 'thumbnail_path' => $this->whenLoaded('attachments', function () {
+            'status' => $this->status,
+            'role' => $this->role,
+            'thumbnail_url' => "https://picsum.photos/300",
+            'description' => Str::words($this->about , 20),
+
             //     return PostAttachmentResource::collection($this->attachments);
             // }),
             'auto_approval' => $this->auto_approval,

@@ -6,7 +6,9 @@ import GroupModel from '@/Components/app/GroupModel.vue';
 import { ref } from 'vue';
 
 const ShowNewGroupModel = ref(false);
-
+defineProps({
+  groups:Array
+})
 </script>
 <template>
   <div class="text-center p-2 bg-white rounded  lg:h-full overflow-hidden flex flex-col">
@@ -31,7 +33,7 @@ const ShowNewGroupModel = ref(false);
             </DisclosureButton>
             <DisclosurePanel>
              
-                 <GroupListItems/>
+                 <GroupListItems :groups="groups" />
             </DisclosurePanel>
           </div>
         </template>
@@ -42,7 +44,7 @@ const ShowNewGroupModel = ref(false);
         <div class="flex justify-between items-center">
           <h2 class="text-xl font-bold m-8">My Group </h2>
         </div>
-        <GroupListItems />
+        <GroupListItems  :groups="groups" />
     </div>
   </div>
 </template>

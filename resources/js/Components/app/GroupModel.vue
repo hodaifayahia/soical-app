@@ -14,13 +14,13 @@ const props = defineProps({
   modelValue: Boolean
 });
 
-const emit = defineEmits(['update:modelValue', 'hide']);
 let showExtentionText = ref(false);
 const FormErrors = ref({});
 const editor = ClassicEditor;
 const editorConfig = {
   toolbar: ['heading', '|', 'bold', 'italic', '|', 'link', '|', 'bulletedList', 'numberedList', '|', 'outdent', 'indent', 'blockquote'],
 };
+const emit = defineEmits(['update:modelValue', 'hide', 'create']);
 
 const form = useForm({
   name: "",
@@ -42,22 +42,15 @@ const show = computed({
 });
 
 function submit() {
-  axiosClient.post(route('group.create', form),)
-        .then(res => {
-           console.log(res)
-           closeModal();
-        });
+  axiosClient.post(route('group.create'), form)
+    .then(({ data }) => {
+      closeModal();
+      emit('create', data);
+    });
 }
 
  function processErrors(errors) {
   FormErrors.value = errors;
-  for(const key in errors){
-          if(key.includes('.')){
-            const [ , index] = key.split('.');
-            
-            attachementErrors.value[index] = errors[key];
-          }
-        }
 }
 
 
@@ -134,7 +127,7 @@ function resetModel() {
 
                     <button type="button"
                         class="flex  items-center justify-center   rounded-md border border-transparent bg-blue-100 w-full p-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                        @click="submit">
+                        @click="closeModal">
                         <XMarkIcon class="h-5 w-5" />
                         Cancel
                       </button>

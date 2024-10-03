@@ -3,7 +3,7 @@
 namespace App\Enums;
 
 class GroupStatutsEnum {
-    const ADMIN = 'admin';
-    const APPROVER = 'approver';
+    const APPROVED = 'APPROVED';
+    const PENDDING = 'admin';
     // Add more constants as needed
 }

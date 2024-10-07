@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class GroupResource extends JsonResource
@@ -23,9 +24,10 @@ class GroupResource extends JsonResource
             'updated_at' => $this->updated_at,
             'user_id' => $this->user_id,
             'slug' => $this->slug,
-            'status' => $this->status,
-            'role' => $this->role,
-            'thumbnail_url' => "https://picsum.photos/300",
+            'status' => $this->currectUserGroup?->status,
+            'role' => $this->currectUserGroup?->role,
+            'thumbnail_url' =>$this->thumbnail_path ? Storage::url($this->thumbnail_path) : '/img/no-image.png',
+            'cover_url' =>$this->cover_path ? Storage::url($this->cover_path) : null,
             'description' => Str::words($this->about , 20),
 
             //     return PostAttachmentResource::collection($this->attachments);

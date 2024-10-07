@@ -37,8 +37,9 @@ class HomeController extends Controller
                 return $posts;
             }
             $groups = Group::query()
+            ->with('currectUserGroup')
+            ->select('groups.*')
             ->join('groupe_users as gu', 'gu.group_id', '=', 'groups.id')
-            ->select('groups.*', 'gu.status', 'gu.role') // Add 'groups.*' to select all group fields
             ->where('gu.user_id', Auth::id())
             ->where('gu.status', GroupStatutsEnum::APPROVED)
             ->orderby('gu.role')

@@ -3,8 +3,8 @@
 namespace App\Enums;
 
 class GroupRoleEnum {
-    const ADMIN = 'admin';
-    const APPROVER = 'approver';
+    const ADMIN = 'Admain';
+    const USER = 'USER';
     
  
 }

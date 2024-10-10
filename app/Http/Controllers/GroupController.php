@@ -3,16 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Enums\GroupRoleEnum;
-use App\Enums\GroupStatutsEnum;
+use App\Enums\GroupStatusEnum;
+use App\Http\Requests\InviteUserRequest;
 use App\Http\Requests\StoreGroupRequest;
 use App\Http\Requests\UpdateGroupRequest;
 use App\Http\Resources\GroupResource;
 use App\Models\Group;
 use App\Models\GroupeUser;
+use App\Notifications\InvitactionApproved;
+use App\Notifications\InvitationGroup;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use Pest\Support\Str;
 
 class GroupController extends Controller
 {
@@ -90,17 +95,69 @@ class GroupController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Group $group)
+    public function InviteUser(InviteUserRequest $request, Group $group)
     {
-        //
+        $data = $request->validated();
+        
+
+        $user = $request->user;
+        $groupuser = $request->groupuser;
+        if ($groupuser) {
+            $groupuser->delete();
+        }
+            $hours = 24;
+            $token = Str::random(256);        
+        $groupUser = GroupeUser::create([
+            'role' => GroupRoleEnum::USER,
+            'status' =>GroupStatusEnum::PENDDING,
+            'token' =>$token ,
+            'token_expire_date' => Carbon::now()->addHours($hours),
+            'user_id'=>$user->id ,
+            'group_id' => $group->id ,
+            'created_by' => Auth::id(),
+        ]);
+        $user->notify(new InvitationGroup($group , $hours ,$token));
+
+            return back()->with('success','User was invite to join to group');
+
     }
+
+    public function ApproveInvitation(String $token)  
+    {
+        $groupuser = GroupeUser::where('token', $token)->first();
+        $errorTitle = '';
+    
+        if (!$groupuser) {
+            $errorTitle = "The link is invalid.";
+        } else if ($groupuser->token_used || $groupuser->status === GroupStatusEnum::APPROVED) {
+            $errorTitle = "The link is already used.";
+        } else if ($groupuser->token_expire_date < Carbon::now()) {
+            $errorTitle = "The link has expired.";
+        }
+    
+        if ($errorTitle) {
+            // Correct the compact usage here
+            return Inertia::render('Error', ['title' => $errorTitle]);
+        }
+    
+        $groupuser->status = GroupStatusEnum::APPROVED;
+        $groupuser->token_used = Carbon::now();
+        $groupuser->save();
+    
+        $adminuser = $groupuser->adminuser;
+        $adminuser->notify(new InvitactionApproved($groupuser->group, $groupuser->user));
+    
+        return redirect(route('group.profile', $groupuser->group))->with('success','You acceccpted to join to group',$groupuser->ma);
+    }
+    
+
 
     /**
      * Update the specified resource in storage.
      */
     public function update(UpdateGroupRequest $request, Group $group)
     {
-        //
+        //InviteUserRequest
     }
 
     /**

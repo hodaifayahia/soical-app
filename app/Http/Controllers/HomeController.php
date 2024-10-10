@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\GroupStatutsEnum;
+use App\Enums\GroupStatusEnum;
 use App\Http\Resources\GroupResource;
 use App\Http\Resources\PostResource;
 use App\Models\Group;
@@ -41,7 +41,7 @@ class HomeController extends Controller
             ->select('groups.*')
             ->join('groupe_users as gu', 'gu.group_id', '=', 'groups.id')
             ->where('gu.user_id', Auth::id())
-            ->where('gu.status', GroupStatutsEnum::APPROVED)
+            ->where('gu.status', GroupStatusEnum::APPROVED)
             ->orderby('gu.role')
             ->orderby('name','desc')
             ->get();

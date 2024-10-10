@@ -2,8 +2,8 @@
 
 namespace App\Enums;
 
-class GroupStatutsEnum {
+class GroupStatusEnum {
     const APPROVED = 'APPROVED';
-    const PENDDING = 'admin';
+    const PENDDING = 'pandding';
     // Add more constants as needed
 }

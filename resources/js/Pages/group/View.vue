@@ -7,6 +7,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { usePage } from "@inertiajs/vue3";
 import { CheckCircleIcon, XMarkIcon, CameraIcon } from '@heroicons/vue/24/solid'
 import { useForm } from '@inertiajs/vue3'
+import InviteGroupModel from '@/Pages/group/InviteGroupModel.vue';
 
 const ImageForm = useForm({
   cover: null,
@@ -15,6 +16,7 @@ const ImageForm = useForm({
 
 const AuthUser = usePage().props.auth.user;
 const ShowNotificatino = ref(true);
+const ShowInviteGroupModel = ref(false);
 const CoverImgSrc = ref('');
 const thumbnailImgSrc = ref('');
 
@@ -215,7 +217,7 @@ function SaveThumbnailImage() {
           <div class="w-full mt-4 sm:mt-0 sm:ml-4 text-center ">
             <div class="flex justify-between">
               <h1 class="font-bold text-lg">{{ group.name }}</h1>
-              <PrimaryButton v-if="isCurrentUserAdmin" class="sm:text-right">Invite Users</PrimaryButton>
+              <PrimaryButton @click="ShowInviteGroupModel = true" v-if="isCurrentUserAdmin" class="sm:text-right">Invite Users</PrimaryButton>
               <PrimaryButton v-if="!group.role && props.group.auto_approval" class="sm:text-right">join to Group</PrimaryButton>
               <PrimaryButton v-if="!group.role && !props.group.auto_approval" class="sm:text-right">Request To Join</PrimaryButton>
             </div>
@@ -261,6 +263,7 @@ function SaveThumbnailImage() {
           </TabPanels>
         </TabGroup>
       </div>
+      <InviteGroupModel v-model="ShowInviteGroupModel" />
     </div>
   </AuthenticatedLayout>
 </template>

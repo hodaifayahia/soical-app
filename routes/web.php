@@ -20,12 +20,20 @@ Route::get('/u/{User:username}', [ProfileController::class, 'index'])->name('pro
 // group view
 Route::get('/g/{group:slug}', [GroupController::class, 'profile'])->name('group.profile');
 
+Route::get('/group/approve-invitation/{group:token}', [GroupController::class, 'ApproveInvitation'])
+->name('group.approve-invitation');
+
 Route::middleware('auth')->group(function () {
     Route::post('/profile/update-iamges', [ProfileController::class, 'UpdateImages'])
          ->name('profile.updateimages');
          // update for group
     Route::post('/group/update-iamges/{group:slug}', [GroupController::class, 'UpdateImages'])
          ->name('group.updateimages');
+         
+    Route::post('/group/InvateUsers/{group:slug}', [GroupController::class, 'InviteUser'])
+         ->name('group.inviteUsers');
+
+   
 //     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

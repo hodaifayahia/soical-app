@@ -93,6 +93,14 @@ function SaveThumbnailImage() {
     }
   });
 }
+
+function jointogroup() {
+  const form = useForm([]);
+
+  // Pass the slug as the second argument to the route function
+  form.post(route('group.join', { group: props.group.slug }));
+}
+
 </script>
 
 <template>
@@ -217,9 +225,23 @@ function SaveThumbnailImage() {
           <div class="w-full mt-4 sm:mt-0 sm:ml-4 text-center ">
             <div class="flex justify-between">
               <h1 class="font-bold text-lg">{{ group.name }}</h1>
-              <PrimaryButton @click="ShowInviteGroupModel = true" v-if="isCurrentUserAdmin" class="sm:text-right">Invite Users</PrimaryButton>
-              <PrimaryButton v-if="!group.role && props.group.auto_approval" class="sm:text-right">join to Group</PrimaryButton>
-              <PrimaryButton v-if="!group.role && !props.group.auto_approval" class="sm:text-right">Request To Join</PrimaryButton>
+            
+
+              <PrimaryButton  
+
+                            v-if="!AuthUser" class="sm:text-right"
+                            :href="route('login')"
+                            >
+                            Login to join to the group
+              </PrimaryButton>
+
+              <PrimaryButton @click="ShowInviteGroupModel = true" 
+                            v-if="AuthUser && isCurrentUserAdmin" class="sm:text-right">
+                            Invite Users
+              </PrimaryButton>
+              <PrimaryButton @click="jointogroup" v-if="AuthUser && !group.role && props.group.auto_approval" class="sm:text-right">join to Group</PrimaryButton>
+              
+              <PrimaryButton @click="jointogroup" v-if="AuthUser && !group.role && !props.group.auto_approval" class="sm:text-right">Request To Join</PrimaryButton>
             </div>
 
           </div>

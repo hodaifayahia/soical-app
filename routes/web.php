@@ -11,9 +11,9 @@ use Inertia\Inertia;
 
 
 
-Route::get('/', [HomeController::class, 'index'])
-->middleware(['auth','verified'])
-->name('dashboard');
+// Route::get('/', [HomeController::class, 'index'])
+// ->middleware(['auth','verified'])
+// ->name('dashboard');
 // profile use view
 Route::get('/u/{User:username}', [ProfileController::class, 'index'])->name('profile');
 
@@ -32,6 +32,9 @@ Route::middleware('auth')->group(function () {
          
     Route::post('/group/InvateUsers/{group:slug}', [GroupController::class, 'InviteUser'])
          ->name('group.inviteUsers');
+
+    Route::post('/group/join/{group:slug}', [GroupController::class, 'join'])
+         ->name('group.join');
 
    
 //     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -10,7 +10,6 @@ import Checkbox from '@/Components/Checkbox.vue';
 import axiosClient from '@/axiosClient.js';
 
 const props = defineProps({
- 
   modelValue: Boolean
 });
 

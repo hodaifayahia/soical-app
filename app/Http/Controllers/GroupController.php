@@ -15,9 +15,11 @@ use App\Notifications\InvitationGroup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Pest\Support\Str;
+use App\Notifications\RequestToJoinToGroup;
 
 class GroupController extends Controller
 {
@@ -38,14 +40,17 @@ class GroupController extends Controller
      */
     public function store(StoreGroupRequest $request)
     {
+        
         $data = $request->validated();
 
         $data['user_id'] = Auth::id();
+        dd($data);
 
         $group =  Group::create($data);
 
+
         $groupUser =[
-            'status' =>GroupStatutsEnum::APPROVED,
+            'status' =>GroupStatusEnum::APPROVED,
             'role' =>GroupRoleEnum::ADMIN,
             'user_id'=>Auth::id(),
             'group_id'=>$group->id,
@@ -148,6 +153,29 @@ class GroupController extends Controller
         $adminuser->notify(new InvitactionApproved($groupuser->group, $groupuser->user));
     
         return redirect(route('group.profile', $groupuser->group))->with('success','You acceccpted to join to group',$groupuser->ma);
+    }
+    public function join(Group $group)  {
+        $user = request()->user();
+
+        $status = GroupStatusEnum::APPROVED;
+        $successMassage = "you have joind to the group '".$group->name."'"
+        if(!$group->auto_approval){
+            $status = GroupStatusEnum::PENDDING;
+            Notification::send($group->adminusers ,new  RequestToJoinToGroup($group , $user));
+            $successMassage = "you request has been accepted you will notified once will be approved ";
+
+        }
+        $groupUser = GroupeUser::create([
+            'role' => GroupRoleEnum::USER,
+            'status' =>$status,
+            'user_id'=>$user->id ,
+            'group_id' => $group->id ,
+            'created_by' => $user->id,
+        ]);
+        
+
+        return back()->with('success',$successMassage );
+
     }
     
 

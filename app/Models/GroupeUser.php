@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use App\Enums\GroupRoleEnum;
 use App\Models\Group;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 
 class GroupeUser extends Model
@@ -18,13 +19,5 @@ class GroupeUser extends Model
     'token_expire_date'];
 
 
-    public function adminuser() : BelongsTo {
-        return $this->belongsTo(User::class , 'created_by');
-    }
-    public function user() : BelongsTo {
-        return $this->belongsTo(User::class);
-    }
-    public function group() : BelongsTO {
-        return $this->belongsTo(Group::class);
-    }
+  
 }

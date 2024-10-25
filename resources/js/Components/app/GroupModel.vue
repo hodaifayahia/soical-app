@@ -41,6 +41,8 @@ const show = computed({
 });
 
 function submit() {
+  console.log(form);
+  
   axiosClient.post(route('group.create'), form)
     .then(({ data }) => {
       closeModal();
@@ -105,8 +107,8 @@ function resetModel() {
 
                 <div class="mb-3">
 
-                  <Checkbox name="remember" v-model:checked="form.auto_approval" />
-                <label class="m-2">Enable auto Aprovel</label>  
+                 <Checkbox name="remember" v-model:checked="form.auto_approval" />
+                 <label class="m-2">Enable auto Aprovel</label>  
                 </div> 
                 <div class="mb-3">
                   <label>About Group</label>

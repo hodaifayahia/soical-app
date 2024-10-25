@@ -8,6 +8,8 @@ import { usePage } from "@inertiajs/vue3";
 import { CheckCircleIcon, XMarkIcon, CameraIcon } from '@heroicons/vue/24/solid'
 import { useForm } from '@inertiajs/vue3'
 import InviteGroupModel from '@/Pages/group/InviteGroupModel.vue';
+import UserListItem from '@/Components/app/UserListItem.vue';
+import TextInput from '@/Components/TextInput.vue';
 
 const ImageForm = useForm({
   cover: null,
@@ -30,8 +32,15 @@ const props = defineProps({
   group: {
     type: Object,
   },
+  users: {
+    type: Array,
+  },
+  Requests: {
+    type: Array,
+  },
 });
-const isCurrentUserAdmin = computed(() => props.group.role == 'admin');
+const isCurrentUserAdmin = computed(() => props.group.role == 'Admain');
+const isJoinToGroup = computed(() => props.group.role  && props.group.status =="APPROVED");
 
 
 function onChangeCover(event) {
@@ -99,6 +108,24 @@ function jointogroup() {
 
   // Pass the slug as the second argument to the route function
   form.post(route('group.join', { group: props.group.slug }));
+}
+
+
+function approveRequest(user) {
+  console.log(user);
+  
+  const form = useForm({
+    'user_id' : user.id,
+    'action' : 'accept'
+  });
+  form.post(route('group.joinRequest' , props.group.slug));
+}
+function RejectRequest(user) {  
+  const form = useForm({
+    'user_id' : user.id ,
+    'action' : 'reject'
+  });
+  form.post(route('group.joinRequest' , props.group.slug));
 }
 
 </script>
@@ -256,11 +283,12 @@ function jointogroup() {
             <Tab v-slot="{ selected }" as="template">
               <TabItem text="Posts" :selected="selected" />
             </Tab>
-            <Tab v-slot="{ selected }" as="template">
-              <TabItem text="Followers" :selected="selected" />
+            <Tab v-if="isJoinToGroup" v-slot="{ selected }" as="template">
+              <TabItem text="User" :selected="selected" />
+
             </Tab>
-            <Tab v-slot="{ selected }" as="template">
-              <TabItem text="Following" :selected="selected" />
+            <Tab v-if="isCurrentUserAdmin" v-slot="{ selected }" as="template">
+              <TabItem text="Pendding Users" :selected="selected" />
             </Tab>
             <Tab v-slot="{ selected }" as="template">
               <TabItem text="Photos" :selected="selected" />
@@ -272,13 +300,38 @@ function jointogroup() {
               :class="['rounded-xl bg-white p-3 shadow', 'ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2']">
               <ul>Posts</ul>
             </TabPanel>
+
             <TabPanel
-              :class="['bg-white p-3 shadow', 'ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2']">
-              <ul>Followers</ul>
+            v-if="isJoinToGroup"
+              :class="['bg-white p-1 shadow', '   ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2']">
+              <div class="m-3">
+                <TextInput v-model="searchKeyWord" placeholder="search for group" class="mb-2 w-full p-2 border rounded" />
+              </div>
+              <div class="grid grid-cols-2 bg-slate-50 ">
+
+                <UserListItem  v-for="user of users" 
+                              :user="user" 
+                              :key="user.id" 
+                              class="border-2 hover:border-indigo-400"
+                              />
+
+
+              </div>
             </TabPanel>
-            <TabPanel :class="['bg-white p-3 shadow', 'focus:outline-none focus:ring-2']">
-              <ul>Following</ul>
-            </TabPanel>
+            <TabPanel v-if="isCurrentUserAdmin" :class="['bg-white p-3 shadow', 'focus:outline-none focus:ring-2']">
+              <div v-if="Requests.length">
+                <UserListItem  v-for="request of Requests"
+                                    :user="request" 
+                                    :key="request.id"
+                                    :forApproved="true"
+                                    @approved="approveRequest(request)"
+                                    @reject="RejectRequest(request)"
+                                    />
+              </div>
+              <div class="py-8 text-center" v-else>
+                  There are no Pending Requests
+              </div>
+              </TabPanel>
             <TabPanel :class="['bg-white p-3 shadow', 'focus:outline-none focus:ring-2']">
               <ul>Photos</ul>
             </TabPanel>

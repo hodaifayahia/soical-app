@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\GroupRoleEnum;
+use App\Enums\GroupStatusEnum;
 use App\Models\GroupeUser;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,7 +17,7 @@ use Spatie\Sluggable\SlugOptions;
 
 class Group extends Model
 {
-    protected $fillable =['name', 'about','user_id','auto_aprovel','thumbnail_path','cover_path', ];
+    protected $fillable =['name', 'about','user_id','auto_approval','thumbnail_path','cover_path', ];
     use HasFactory;
     use SoftDeletes;
     use HasSlug;
@@ -53,5 +54,13 @@ class Group extends Model
     public function adminusers() : BelongsToMany {
         return $this->belongsToMany(User::class, 'groupe_users')
             ->wherePivot('role', GroupRoleEnum::ADMIN);
+    }
+    public function GroupUsers() : BelongsToMany {
+        return $this->belongsToMany(User::class, 'groupe_users')
+            ->wherePivot('status', GroupStatusEnum::APPROVED);
+    }
+    public function PenddingUsers() : BelongsToMany {
+        return $this->belongsToMany(User::class, 'groupe_users')
+            ->wherePivot('status', GroupStatusEnum::PENDDING);
     }
 }

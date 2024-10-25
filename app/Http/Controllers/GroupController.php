@@ -8,10 +8,13 @@ use App\Http\Requests\InviteUserRequest;
 use App\Http\Requests\StoreGroupRequest;
 use App\Http\Requests\UpdateGroupRequest;
 use App\Http\Resources\GroupResource;
+use App\Http\Resources\UserResource;
 use App\Models\Group;
 use App\Models\GroupeUser;
 use App\Notifications\InvitactionApproved;
 use App\Notifications\InvitationGroup;
+use App\Notifications\RequestApproved;
+use App\Notifications\RequestToJoinToGroup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +22,6 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Pest\Support\Str;
-use App\Notifications\RequestToJoinToGroup;
 
 class GroupController extends Controller
 {
@@ -29,9 +31,13 @@ class GroupController extends Controller
     public function profile(Group $group)
     {
         $group->load('currectUserGroup');
+        $users = $group->GroupUsers()->orderBy('name')->get();
+        $Request = $group->PenddingUsers()->orderBy('name')->get();
         return Inertia::render('group/View', [
             'success' => session('success'),
             'group' => new GroupResource($group),
+            'users'=> UserResource::collection($users),
+            'Requests'=> UserResource::collection($Request),
         ]);
     }
 
@@ -41,10 +47,10 @@ class GroupController extends Controller
     public function store(StoreGroupRequest $request)
     {
         
+      
         $data = $request->validated();
 
         $data['user_id'] = Auth::id();
-        dd($data);
 
         $group =  Group::create($data);
 
@@ -158,12 +164,11 @@ class GroupController extends Controller
         $user = request()->user();
 
         $status = GroupStatusEnum::APPROVED;
-        $successMassage = "you have joind to the group '".$group->name."'"
+        $successMassage = "you have joind to the group '".$group->name."'";
         if(!$group->auto_approval){
             $status = GroupStatusEnum::PENDDING;
             Notification::send($group->adminusers ,new  RequestToJoinToGroup($group , $user));
             $successMassage = "you request has been accepted you will notified once will be approved ";
-
         }
         $groupUser = GroupeUser::create([
             'role' => GroupRoleEnum::USER,
@@ -177,6 +182,42 @@ class GroupController extends Controller
         return back()->with('success',$successMassage );
 
     }
+    public function joinRequest(Request $request, Group $group)  {
+        if(!$group->isAdmin(Auth::id())){
+            return response('You Don"t have permisson to perform this action ', 403);
+        }
+        $data = $request->validate([
+            'user_id'=>['required'],
+            'action' =>['required']
+        ]);
+        $groupuser = GroupeUser::where('user_id', $data['user_id'])
+        ->where('group_id', $group->id)
+        ->where('status', GroupStatusEnum::PENDDING)
+        ->first();
+    
+        
+        if ($groupuser) {
+            $approved = false;
+            if ($data['action'] ==GroupStatusEnum::APPROVED ) {
+                $approved = true;
+                $groupuser->status = GroupStatusEnum::APPROVED;
+            }
+            else{
+                $groupuser->status = GroupStatusEnum::REJECTED;
+            }
+            
+            $groupuser->save();
+            $user = $groupuser->user;
+            $user->notify(new RequestApproved($groupuser->group, $user ,$approved));
+    
+    
+            // your request has been approved to the user 
+            back()->with('success', 'User ',$groupuser->user->name,'was',$approved);
+        }
+        return back();
+
+
+    } 
     
 
 

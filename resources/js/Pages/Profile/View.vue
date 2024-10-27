@@ -69,6 +69,7 @@ function CancelCoverImage() {
 
 function SaveCoverImage() {
   ImageForm.post(route('profile.updateimages'), {
+    preserveScroll: true,
     onSuccess: (user) => {
       ShowNotificatino.value = true;
       CancelCoverImage();
@@ -86,6 +87,7 @@ function CancelAvatarImage() {
 
 function SaveAvatarImage() {
   ImageForm.post(route('profile.updateimages'), {
+    preserveScroll: true,
     onSuccess: (user) => {
       ShowNotificatino.value= true;
       CancelAvatarImage();

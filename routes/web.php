@@ -35,6 +35,8 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/group/join/{group:slug}', [GroupController::class, 'join'])
          ->name('group.join');
+    Route::post('/group/changeRole/{group:slug}', [GroupController::class, 'changeRole'])
+         ->name('group.changeRole');
 
     Route::post('/group/join-Request/{group:slug}', [GroupController::class, 'joinRequest'])
          ->name('group.joinRequest');

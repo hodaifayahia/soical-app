@@ -40,7 +40,13 @@ class Group extends Model
     }
 
     public function isAdmin($userId) : bool {
-        return $this->currectUserGroup?->user_id == $userId;
+        return GroupeUser::where('user_id',$userId)
+                            ->where('group_id',$this->id)
+                            ->where('role', GroupRoleEnum::ADMIN)
+                            ->exists();
+    }
+    public function isOwner($userId) : bool {
+        return $this->user_id == $userId;
     }
     public function adminuser() : BelongsTo {
         return $this->belongsTo(User::class , 'created_by');

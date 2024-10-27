@@ -21,6 +21,8 @@ const form = useForm({
     name: user.name,
     username: user.username,
     email: user.email,
+},{
+    preserveScroll: true
 });
 </script>
 

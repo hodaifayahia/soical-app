@@ -39,7 +39,7 @@ const props = defineProps({
     type: Array,
   },
 });
-const isCurrentUserAdmin = computed(() => props.group.role == 'Admain');
+const isCurrentUserAdmin = computed(() => props.group.role == 'ADMIN');
 const isJoinToGroup = computed(() => props.group.role  && props.group.status =="APPROVED");
 
 
@@ -76,6 +76,7 @@ function CancelCoverImage() {
 
 function SaveCoverImage() {
   ImageForm.post(route('group.updateimages',props.group.slug), {
+    preserveScroll: true,
     onSuccess: (group) => {
       ShowNotificatino.value= true;
       CancelCoverImage();
@@ -93,6 +94,7 @@ function CancelThumbnailImage() {
 
 function SaveThumbnailImage() {
   ImageForm.post(route('group.updateimages',props.group.slug), {
+    preserveScroll: true,
     onSuccess: (group) => {
       ShowNotificatino.value= true;
       CancelThumbnailImage();
@@ -107,7 +109,9 @@ function jointogroup() {
   const form = useForm([]);
 
   // Pass the slug as the second argument to the route function
-  form.post(route('group.join', { group: props.group.slug }));
+  form.post(route('group.join', { group: props.group.slug }),{
+    preserveScroll: true
+  });
 }
 
 
@@ -118,14 +122,30 @@ function approveRequest(user) {
     'user_id' : user.id,
     'action' : 'accept'
   });
-  form.post(route('group.joinRequest' , props.group.slug));
+  form.post(route('group.joinRequest' , props.group.slug),{
+    preserveScroll: true
+  });
 }
 function RejectRequest(user) {  
   const form = useForm({
     'user_id' : user.id ,
     'action' : 'reject'
   });
-  form.post(route('group.joinRequest' , props.group.slug));
+  form.post(route('group.joinRequest' , props.group.slug),{
+    preserveScroll: true
+  });
+}
+function onROleChange(user,role) { 
+ 
+  const form = useForm({
+    'user_id' : user.id ,
+     role,
+  });
+  form.post(route('group.changeRole' , props.group.slug),{
+    preserveScroll: true
+  });
+  
+  
 }
 
 </script>
@@ -308,10 +328,13 @@ function RejectRequest(user) {
                 <TextInput v-model="searchKeyWord" placeholder="search for group" class="mb-2 w-full p-2 border rounded" />
               </div>
               <div class="grid grid-cols-2 bg-slate-50 ">
-
+                   
                 <UserListItem  v-for="user of users" 
                               :user="user" 
                               :key="user.id" 
+                              :show-role-drop-down="isCurrentUserAdmin"
+                              @role-change="onROleChange"
+                              :disableRoleDropDown="group.user_id == user.id"
                               class="border-2 hover:border-indigo-400"
                               />
 

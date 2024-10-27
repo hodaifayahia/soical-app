@@ -8,9 +8,13 @@ use App\Http\Requests\InviteUserRequest;
 use App\Http\Requests\StoreGroupRequest;
 use App\Http\Requests\UpdateGroupRequest;
 use App\Http\Resources\GroupResource;
+use App\Http\Resources\GroupUserResource;
 use App\Http\Resources\UserResource;
 use App\Models\Group;
 use App\Models\GroupeUser;
+use App\Models\User;
+use App\Notifications\ChangeRoleRequest;
+use App\Notifications\ChangeROllRequest;
 use App\Notifications\InvitactionApproved;
 use App\Notifications\InvitationGroup;
 use App\Notifications\RequestApproved;
@@ -20,6 +24,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Pest\Support\Str;
 
@@ -31,12 +36,17 @@ class GroupController extends Controller
     public function profile(Group $group)
     {
         $group->load('currectUserGroup');
-        $users = $group->GroupUsers()->orderBy('name')->get();
+        $users = User::query()->select(['users.*','gu.role','gu.status','gu.group_id'])
+                        ->join('groupe_users as gu','gu.user_id','users.id')
+                        ->where('gu.group_id',$group->id)
+                        ->orderBy('name')
+                        ->get();
         $Request = $group->PenddingUsers()->orderBy('name')->get();
+
         return Inertia::render('group/View', [
             'success' => session('success'),
             'group' => new GroupResource($group),
-            'users'=> UserResource::collection($users),
+            'users'=> GroupUserResource::collection($users),
             'Requests'=> UserResource::collection($Request),
         ]);
     }
@@ -71,7 +81,7 @@ class GroupController extends Controller
 
     public function UpdateImages(Request $request , Group $group)  {
 
-        if (!$group->isAdmin(Auth::id())) {
+        if (!$group->isAdmign(Auth::id())) {
             return response("You Don't have permisson to preform this action "  , 403);
         }
         $data = $request->validate([
@@ -224,10 +234,38 @@ class GroupController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateGroupRequest $request, Group $group)
+    public function changeRole(Request $request, Group $group)
     {
-        //InviteUserRequest
+        if(!$group->isOwner(Auth::id())){
+            return response('You don\'t have permission to perform this action', 403);
+        }
+    
+        $data = $request->validate([
+            'user_id' => ['required'],
+            'role' => ['required', Rule::in(GroupRoleEnum::values())],
+        ]);
+    
+        $groupUser = GroupeUser::where('user_id', $data['user_id'])
+            ->where('group_id', $group->id)
+            ->first();
+    
+        $user_id = $data['user_id'];
+        if ($user_id == $group->user_id) {
+            return response('Cannot change the role of the group owner', 400);
+        }
+    
+        if ($groupUser) {
+            $groupUser->role = $data['role'];
+            $groupUser->save();
+    
+            // Send notification to the user that their role was changed
+            $user = $groupUser->user;
+            $user->notify(new ChangeRoleRequest($groupUser->group, $user));
+        }
+    
+        return back();
     }
+    
 
     /**
      * Remove the specified resource from storage.

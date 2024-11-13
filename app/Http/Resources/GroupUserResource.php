@@ -23,8 +23,8 @@ class GroupUserResource extends JsonResource
             "status" =>$this->status,
             "group_id" =>$this->group_id,
             "username"=> $this->username,
-            "cover_url"=> $this->cover_path ? asset(Storage::url($this->cover_path))  : '/img/default_cover.jpg',
-            "avatar_url"=>$this->avatar_path ? asset(Storage::url($this->avatar_path))  : '/img/default_user.jpg',
+            "cover_url"=> $this->cover_path ? asset(Storage::url($this->cover_path))  : 'public/img/default_cover.jpg',
+            "avatar_url"=>$this->avatar_path ? asset(Storage::url($this->avatar_path))  : 'public/img/default_avatar.jpg',
         ];
     }
 }

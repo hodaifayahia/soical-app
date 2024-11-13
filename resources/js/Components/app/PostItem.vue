@@ -86,7 +86,7 @@ function sendReaction() {
                     <span class="pl-1">{{ post.num_of_comment }}</span>
                 </DisclosureButton>
             </div>
-            <DisclosurePanel class="comment-list overflow-auto h-[400px]  px-4 pb-2 mt-2 pt-4 text-sm text-gray-500">
+            <DisclosurePanel class="comment-list overflow-auto max-h-[400px]  px-4 pb-2 mt-2 pt-4 text-sm text-gray-500">
               
                 <CommentList :post="props.post" :data="{comments : post.Comments}"   />
                 </DisclosurePanel>

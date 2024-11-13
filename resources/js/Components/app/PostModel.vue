@@ -12,6 +12,10 @@ const props = defineProps({
     type: Object,
     required: false,
   },
+  group:{
+    type: Object,
+    default:null
+  },
   modelValue: Boolean
 });
 
@@ -19,6 +23,7 @@ const emit = defineEmits(['update:modelValue', 'hide']);
 const attachementErrors = ref([]);
 let showExtentionText = ref(false);
 const FormErrors = ref({});
+
 const attachementFiles = ref([]);
 const editor = ClassicEditor;
 const editorConfig = {
@@ -30,6 +35,7 @@ const form = useForm({
   body: "",
   attachments: [],
   deleted_file_ids: [],
+  group_id:null,
   _method : 'POST',
 });
 
@@ -57,8 +63,11 @@ showExtentionText = computed(()=>{
   return false;
 })
 function submit() {
+  
+  if (props.group) {
+     form.group_id = props.group.id;
+  }
   // Set attachments from the attachment files
-
   form.attachments = attachementFiles.value.map(myfile => myfile.file);
 
   // Check if editing an existing post
@@ -71,6 +80,7 @@ function submit() {
       },
       onError: (errors) => {
         processErrors(errors);
+        closeModal();
       }
     });
   } else {
@@ -178,13 +188,14 @@ function resetModel() {
 
 <template>
   <teleport to="body ">
+    
     <TransitionRoot appear :show="show" as="template">
       <Dialog as="div" @close="closeModal" class="relative z-50">
         <TransitionChild as="template" enter="duration-300 ease-out" enter-from="opacity-0" enter-to="opacity-100"
           leave="duration-200 ease-in" leave-from="opacity-100" leave-to="opacity-0">
           <div class="fixed inset-0 bg-black/25" />
         </TransitionChild>
-
+    
         <div class="fixed inset-0 overflow-y-auto">
           <div class="flex min-h-full items-center justify-center p-4 text-center">
             <TransitionChild as="template" enter="duration-300 ease-out" enter-from="opacity-0 scale-95"
@@ -202,13 +213,14 @@ function resetModel() {
                 </DialogTitle>
                 <PostUserHeader :post="post" :showTime="false" class="mb-2 m-2" />
                 <div class="p-3 mt-3 ">
+                  <h3 v-if="FormErrors.group_id" class=" text-white px-2 py-3 bg-red-500 rounded ">{{ FormErrors.group_id }}</h3>
                   <ckeditor :editor="editor" v-model="form.body" :config="editorConfig"></ckeditor>
                  <div v-if="attachementFiles.length" class="border-l-4 px-2 border-sky-500 py-3 mt-3 bg-sky-100  border-1 text-gray-800">
                   The attachement need to be one of these extension  <br>
                   <small>{{ attachmentExtentions.join(', ') }}</small>
                 </div>
 
-                 <div v-if="FormErrors.attachments" class="border-l-4 px-2 border-red-500 py-3 mt-3 bg-red-100  border-1 text-gray-800">
+                 <div v-if="FormErrors.attachments" class="border-l-4 px-2 border-red-400 py-3 mt-3 bg-red-100  border-1 text-gray-800">
                   <small>{{ FormErrors.attachments }}</small>
                 </div>
 

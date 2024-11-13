@@ -17,18 +17,7 @@ class HomeController extends Controller
     {
         $userId = Auth::id();
         
-        $posts = Post::query()// select * form post 
-            ->withCount('reactions') // selct count form reactions
-            ->with([
-                'comments' => function ($query) use ($userId) {
-                    $query->withCount('reactions'); // selct count form reactions // select * from comments where post (1,2..)
-                      
-                }, 'reactions' => function ($query) use ($userId) {
-                    $query->where('user_id', $userId); //selct reaction in comments where in (1,1,3)
-                }
-            ])
-            
-            ->latest() // Order posts by latest
+        $posts = Post::PostFroTimeLine($userId)
             ->paginate(10); // Paginate the results
 
             $posts = PostResource::collection($posts);

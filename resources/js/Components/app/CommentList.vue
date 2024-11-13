@@ -8,6 +8,7 @@ import { usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import ReadlessReadMore from '@/Components/app/ReadlessReadMore.vue';
 import EditDeleteDropDown from '@/Components/app/EditDeleteDropDown.vue';
+import { Link } from '@inertiajs/vue3';
 
 
 
@@ -121,10 +122,10 @@ function ondeleteComment(comment) {
     <div>
         <div>
             <div class="flex mt-4">
-                <a href="javascript:void(0)">
-                    <img :src="authUser.avatar_url" alt="User image"
-                        class="w-10 h-10 rounded-full mr-3 border-2 transition-all hover:border-cyan-400">
-                </a>
+                <Link :href="route('profile', authUser.username)">
+                            <img :src="authUser.avatar_url" alt="User image"
+                                class="w-10 h-10 rounded-full mr-4 border-2 transition-all hover:border-cyan-400">
+                </Link>
                 <div class="flex flex-1">
                     <TextArea v-model="newCommentText" name="" rows="1"
                         class="w-full  resize-none max-h-[160px] rounded-r-none " placeholder="Enter your COmment Here"
@@ -144,10 +145,10 @@ function ondeleteComment(comment) {
 
                     <div class="flex items-start">
                         <!-- User Avatar -->
-                        <a href="javascript:void(0)">
+                        <Link :href="route('profile', authUser.username)">
                             <img :src="authUser.avatar_url" alt="User image"
                                 class="w-10 h-10 rounded-full mr-4 border-2 transition-all hover:border-cyan-400">
-                        </a>
+                        </Link>
                         <!-- Comment Content -->
                         <div class="flex-1 ">
                             <div class="flex items-center justify-between">

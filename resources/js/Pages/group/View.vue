@@ -10,6 +10,9 @@ import { useForm } from '@inertiajs/vue3'
 import InviteGroupModel from '@/Pages/group/InviteGroupModel.vue';
 import UserListItem from '@/Components/app/UserListItem.vue';
 import TextInput from '@/Components/TextInput.vue';
+import GroupModelForm from '@/Components/app/GroupModelForm.vue';
+import PostList from '@/Components/app/PostList.vue'; // Adjust the path as necessary
+import CreatePost from '@/Components/app/CreatePost.vue'; // Adjust the path as necessary
 
 const ImageForm = useForm({
   cover: null,
@@ -32,12 +35,21 @@ const props = defineProps({
   group: {
     type: Object,
   },
+  posts: {
+    type: Object,
+  },
   users: {
     type: Array,
   },
   Requests: {
     type: Array,
   },
+});
+
+const Aboutform =useForm({
+  name:usePage().props.group.name,
+  auto_approval :!!parseInt(usePage().props.group.auto_approval),
+  about : usePage().props.group.about
 });
 const isCurrentUserAdmin = computed(() => props.group.role == 'ADMIN');
 const isJoinToGroup = computed(() => props.group.role  && props.group.status =="APPROVED");
@@ -146,6 +158,12 @@ function onROleChange(user,role) {
   });
   
   
+}
+
+function UpdategroupInfo() {
+  Aboutform.put(route('group.update',props.group.slug),{
+    preserveScroll:true,
+  })
 }
 
 </script>
@@ -313,12 +331,20 @@ function onROleChange(user,role) {
             <Tab v-slot="{ selected }" as="template">
               <TabItem text="Photos" :selected="selected" />
             </Tab>
+            <Tab v-slot="{ selected }" as="template">
+              <TabItem text="About" :selected="selected" />
+            </Tab>
           </TabList>
           <TabPanels class="mt-2">
            
-            <TabPanel
-              :class="['rounded-xl bg-white p-3 shadow', 'ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2']">
-              <ul>Posts</ul>
+            <TabPanel>
+              <template v-if="posts">
+                <CreatePost  :group="group"/>
+                <PostList :posts="posts.data" class="flex-1 overflow-auto"></PostList>
+              </template>
+                <div v-else class="py-8 text-center">
+                  You Don't Have Permission to view These Posts
+                </div>
             </TabPanel>
 
             <TabPanel
@@ -358,6 +384,10 @@ function onROleChange(user,role) {
             <TabPanel :class="['bg-white p-3 shadow', 'focus:outline-none focus:ring-2']">
               <ul>Photos</ul>
             </TabPanel>
+            <TabPanel :class="['bg-white p-3 shadow', 'focus:outline-none focus:ring-2']">
+                <GroupModelForm :form ="Aboutform" /> 
+                <PrimaryButton @click="UpdategroupInfo" >Save</PrimaryButton>
+              </TabPanel>
           </TabPanels>
         </TabGroup>
       </div>

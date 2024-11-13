@@ -45,6 +45,12 @@ class Group extends Model
                             ->where('role', GroupRoleEnum::ADMIN)
                             ->exists();
     }
+    public function hasApprovedStatus($userId) : bool {
+        return GroupeUser::where('user_id',$userId)
+                            ->where('group_id',$this->id)
+                            ->where('status', GroupStatusEnum::APPROVED)
+                            ->exists();
+    }
     public function isOwner($userId) : bool {
         return $this->user_id == $userId;
     }

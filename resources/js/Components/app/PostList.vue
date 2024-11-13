@@ -1,6 +1,6 @@
 <script setup>
 import PostItem from '@/Components/app/PostItem.vue';
-import { ref,onMounted , onUpdated ,nextTick } from 'vue'
+import { ref,onMounted ,watch, onUpdated ,nextTick } from 'vue'
 import PostModel from "@/Components/app/PostModel.vue"; // Corrected import (without {})
 import attachmentPreviewModel from "@/Components/app/attachmentPreviewModel.vue"; // Corrected import (without {})
 import {  usePage } from '@inertiajs/vue3';
@@ -10,12 +10,11 @@ import axiosClient from '@/axiosClient.js';
 const props = defineProps({
     posts: Array,
 });
+const page = usePage(); 
 const AuthUser = usePage().props.auth.user;
-const page =usePage(); 
-
 const allPosts = ref({
-    data: page.props.posts.data,
-    next: page.props.posts.links.next
+    data: [],
+    next: null
 })
 
 
@@ -58,13 +57,7 @@ function loadMore() {
       });
   }
 }
-// Hooks
-// onUpdated(() => {
-//     allPosts.value = {
-//         data: page.props.posts.data,
-//         next: page.props.posts.links.next
-//     }
-// })
+
 onMounted(() => {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -83,6 +76,15 @@ onMounted(() => {
     }
   });
 });
+// Hooks when the posts gets updated it allposts should alse get updated 
+watch(() => page.props.posts, (newPosts) => {
+  if(page.props.posts){
+    allPosts.value = {
+        data: newPosts.data,
+        next: newPosts.links.next
+    };
+  }
+} );
 
 </script>
 

@@ -9,9 +9,11 @@ use App\Http\Requests\StoreGroupRequest;
 use App\Http\Requests\UpdateGroupRequest;
 use App\Http\Resources\GroupResource;
 use App\Http\Resources\GroupUserResource;
+use App\Http\Resources\PostResource;
 use App\Http\Resources\UserResource;
 use App\Models\Group;
 use App\Models\GroupeUser;
+use App\Models\Post;
 use App\Models\User;
 use App\Notifications\ChangeRoleRequest;
 use App\Notifications\ChangeROllRequest;
@@ -33,20 +35,40 @@ class GroupController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function profile(Group $group)
+    public function profile(Request $request, Group $group)
     {
+        $userId = Auth::id();
         $group->load('currectUserGroup');
+        if ($group->hasApprovedStatus($userId)) {
+            $posts =Post::PostFroTimeLine($userId)
+                    ->where('group_id' , $group->id)
+                    ->paginate(10); // Paginate the results
+            $posts = PostResource::collection($posts);
+        }else{
+           return Inertia::render('group/View',[
+           'success' => session('success'),
+           'group' => new GroupResource($group),
+           'users'=> [],
+           'posts'=> null,
+           'Requests'=> [],]);
+        }
+
+        if ($request->wantsJson()) {
+            return PostResource::collection($posts);
+        }
         $users = User::query()->select(['users.*','gu.role','gu.status','gu.group_id'])
                         ->join('groupe_users as gu','gu.user_id','users.id')
                         ->where('gu.group_id',$group->id)
                         ->orderBy('name')
                         ->get();
+                        
         $Request = $group->PenddingUsers()->orderBy('name')->get();
 
         return Inertia::render('group/View', [
             'success' => session('success'),
             'group' => new GroupResource($group),
             'users'=> GroupUserResource::collection($users),
+            'posts'=> $posts,
             'Requests'=> UserResource::collection($Request),
         ]);
     }
@@ -81,7 +103,7 @@ class GroupController extends Controller
 
     public function UpdateImages(Request $request , Group $group)  {
 
-        if (!$group->isAdmign(Auth::id())) {
+        if (!$group->isAdmin(Auth::id())) {
             return response("You Don't have permisson to preform this action "  , 403);
         }
         $data = $request->validate([
@@ -270,6 +292,12 @@ class GroupController extends Controller
     /**
      * Remove the specified resource from storage.
      */
+    public function update(UpdateGroupRequest $request , Group $group)
+    {
+        $group->update($request->validated());
+        return back()->with('success' , 'your Group Information has been updated ');
+        
+    }
     public function destroy(Group $group)
     {
         //

@@ -40,9 +40,7 @@ const show = computed({
   set: (value) => emit('update:modelValue', value)
 });
 
-function submit() {
-  console.log(form);
-  
+function submit() {  
   axiosClient.post(route('group.create'), form)
     .then(({ data }) => {
       closeModal();

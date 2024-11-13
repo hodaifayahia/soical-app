@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\GroupStatusEnum;
+use App\Models\GroupeUser;
 use App\Rules\TotalFileSize;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -37,6 +39,17 @@ class StorePostRequest extends FormRequest
                 File::types(self::$extantion)
             ],
             'user_id' => 'numeric',
+        'group_id' => ['nullable', 'exists:groups,id', function ($attribute, $value, \Closure $fail) {
+    $groupuser = GroupeUser::where('user_id', Auth::id())
+        ->where('group_id', $value)
+        ->where('status', GroupStatusEnum::APPROVED)
+        ->exists();
+
+    if (!$groupuser) {
+        $fail('You don\'t have permission to perform this action');
+    }
+}],
+
         ];
     }
 

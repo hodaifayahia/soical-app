@@ -11,6 +11,14 @@ const NewPost = ref({
   body: '',
   user: AuthUser,
 });
+const props = defineProps({
+  group:{
+    type: Object,
+    default:null
+  }
+  
+
+})
 
 function ShowCreatePostModel() {
   ShowModel.value = true;
@@ -25,6 +33,6 @@ function ShowCreatePostModel() {
       rows="1"
     >What's on your mind?</div>
     
-    <PostModel :post="NewPost" v-model="ShowModel" />
+    <PostModel :group="group" :post="NewPost" v-model="ShowModel" />
   </div>
 </template>

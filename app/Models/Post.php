@@ -3,15 +3,18 @@
 namespace App\Models;
 
 use App\Models\Comment;
+use App\Models\Group;
 use App\Models\Groupe;
+use App\Models\Post;
 use App\Models\PostAttachements;
 use App\Models\PostReaction;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 
 class Post extends Model
@@ -23,6 +26,7 @@ class Post extends Model
         'body',
         'user_id',
         'comments',
+        'group_id',
         
     ];
 
@@ -33,7 +37,7 @@ class Post extends Model
 
     public function group() 
     {
-        return $this->belongsTo(Groupe::class); // Make sure your model name is Group
+        return $this->belongsTo(Group::class); // Make sure your model name is Group
     }
 
     public function attachments() 
@@ -54,6 +58,21 @@ class Post extends Model
     }
     
     // Post.php
+
+    public static function PostFroTimeLine($userId) : Builder {
+        return Post::query()// select * form post 
+        ->withCount('reactions') // selct count form reactions
+        ->with([
+            'comments' => function ($query) {
+                $query->withCount('reactions'); // selct count form reactions // select * from comments where post (1,2..)
+                  
+            }, 'reactions' => function ($query) use ($userId) {
+                $query->where('user_id', $userId); //selct reaction in comments where in (1,1,3)
+            }
+        ])
+        
+        ->latest() ;// Order posts by latest
+    }
 
 
    

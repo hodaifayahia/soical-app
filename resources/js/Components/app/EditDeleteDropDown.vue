@@ -1,13 +1,40 @@
 <script setup>
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue';
 import { PencilIcon, TrashIcon, EllipsisVerticalIcon,  } from '@heroicons/vue/20/solid';
-import { usePage } from '@inertiajs/vue3';
+import { usePage  } from '@inertiajs/vue3';
+import {  computed } from "vue";
+
 
 defineEmits(['edit','delete']);
-defineProps({
-    user:Object
+const props = defineProps({
+    posts:{
+        type:Object,
+        default:null, 
+    },
+    comment:{
+        type:Object,
+        default:null, 
+    },
 })
-const Authuser = usePage().props.auth.user;
+
+const Authuser = usePage().props.auth.user.id;
+const user = computed(() => {
+    return props.comment?.user || props.posts?.user;
+});
+
+const editIsAllowed = computed(()=>{
+    return user.value.id == Authuser;
+});
+const deletedIsAllowed = computed(() => {
+    if (user.value.id == Authuser) return true; // User is the owner of the post/comment.
+    if (props.posts.user.id == Authuser) return true; // Authenticated user owns the post.
+
+    return !props.comment && props.posts.group?.role == 'ADMIN'; // Admin in a group can delete a post.
+});
+
+
+
+
 </script>
 
 <template>
@@ -29,7 +56,7 @@ const Authuser = usePage().props.auth.user;
                         <MenuItems
                             class="absolute z-20 right-0 mt-2 w-36 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                             <div class="px-1 py-1">
-                                <MenuItem v-if="user.id == Authuser.id" v-slot="{ active }">
+                                <MenuItem v-if="editIsAllowed" v-slot="{ active }">
                                 <button  @click="$emit('edit')" :class="[
 
                                     active ? 'bg-indigo-500 text-white' : 'text-gray-900',
@@ -44,7 +71,7 @@ const Authuser = usePage().props.auth.user;
                             </div>
 
                             <div class="px-1 py-1">
-                                <MenuItem v-if="user.id == Authuser.id" v-slot="{ active }">
+                                <MenuItem v-if="deletedIsAllowed" v-slot="{ active }">
                                 <button @click="$emit('delete')" :class="[
                                     active ? 'bg-indigo-500 text-white' : 'text-gray-900',
                                     'group flex w-full items-center rounded-md px-2 py-2 text-sm',

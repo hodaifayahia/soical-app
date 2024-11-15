@@ -52,7 +52,7 @@ function sendReaction() {
         <div class="flex items-center mb-4 justify-between">
             <PostUserHeader :post="post" :showTime="true" />
             <div>
-                <EditDeleteDropDown :user="post.user" @edit="openEditModel" @delete="deletePost" />
+                <EditDeleteDropDown :posts="post"  @edit="openEditModel" @delete="deletePost" />
             </div>
 
         </div>

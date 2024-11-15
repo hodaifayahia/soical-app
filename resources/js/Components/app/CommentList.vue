@@ -161,7 +161,7 @@ function ondeleteComment(comment) {
                                 </div>
 
                             </div>
-                            <EditDeleteDropDown class="flex  justify-end bottom-8 " :user="comment.user"
+                            <EditDeleteDropDown class="flex  justify-end bottom-8 " :posts="post" :comment="comment" :user="comment.user"
                                 @edit="StartEditComment(comment)" @delete="deleteComment(comment)" />
 
 

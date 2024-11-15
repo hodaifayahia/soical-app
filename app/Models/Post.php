@@ -57,6 +57,11 @@ class Post extends Model
         return $this->hasMany(Comment::class);
     }
     
+    public function isOnwer($userId)
+    {
+        return $this->user_id == $userId; 
+    }
+    
     // Post.php
 
     public static function PostFroTimeLine($userId) : Builder {

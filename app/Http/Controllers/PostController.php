@@ -11,6 +11,8 @@ use App\Models\Comment;
 use App\Models\Post;
 use App\Models\PostAttachements;
 use App\Models\Reaction;
+use App\Notifications\CommentDeleted;
+use App\Notifications\PostDeleted;
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -126,12 +128,17 @@ public function store(StorePostRequest $request)
         // To dO 
         $id = Auth::id();
 
-        if ($post->user_id != $id) {
-            return response("You Don't have permission to delate this post",403);
-        }
-        $post->delete();
+        if ($post->group && $post->group->isAdmin($id) || $post->isOnwer($id)) {
+            $post->delete();
 
-        return back();
+            if(!$post->isOnwer($id)){
+                $post->user->notify(new PostDeleted($post->group));
+            }
+            return back();
+
+        }
+            return response("You Don't have permission to delate this post",403);
+
     }
 
     public function downloadAttachment(PostAttachements $attachment)  {
@@ -187,12 +194,18 @@ public function store(StorePostRequest $request)
 
     public function deleteComment(Comment $comment)
     {
-        if ($comment->user_id !== Auth::id()) {
-            return response("You don't have permission to delete this comment.", 403);
+        $post = $comment->post;
+        $id = Auth::id();
+        if ($comment->isOnwer($id) || $post->isOnwer($id) ) {
+            
+            $comment->delete();
+            if(!$comment->isOnwer($id)){
+                $comment->user->notify(new CommentDeleted($comment , $post));
+            }
+            return response('', 204);
         }
+        return response("You don't have permission to delete this comment.", 403);
 
-        $comment->delete();
-        return response('', 204);
     }
     
    public function updateComment( UpdateCommentRequest $request , Comment $comment)  {

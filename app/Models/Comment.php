@@ -24,11 +24,15 @@ class Comment extends Model
     {
         return $this->belongsTo(User::class);
     }
-    public function post() : BelongTo {
+    public function post() : BelongsTo {
          return $this->belongsTo(Post::class);
     }
     public function comments() : HasMany {
          return $this->hasMany(self::class , 'parent_id');
+    }
+    public function isOnwer($userId)
+    {
+        return $this->user_id == $userId; 
     }
 
 public function reactions()

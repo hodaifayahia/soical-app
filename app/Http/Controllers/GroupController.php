@@ -187,7 +187,7 @@ class GroupController extends Controller
         $groupuser->token_used = Carbon::now();
         $groupuser->save();
     
-        $adminuser = $groupuser->adminuser;
+        $adminuser = $groupuser->isOwner;
         $adminuser->notify(new InvitactionApproved($groupuser->group, $groupuser->user));
     
         return redirect(route('group.profile', $groupuser->group))->with('success','You acceccpted to join to group',$groupuser->ma);

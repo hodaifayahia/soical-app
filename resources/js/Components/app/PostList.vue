@@ -13,8 +13,8 @@ const props = defineProps({
 const page = usePage(); 
 const AuthUser = usePage().props.auth.user;
 const allPosts = ref({
-    data: [],
-    next: null
+    data: page.props.posts.data,
+    next: page.props.posts.links.next
 })
 
 

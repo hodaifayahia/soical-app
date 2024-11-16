@@ -147,6 +147,17 @@ function RejectRequest(user) {
     preserveScroll: true
   });
 }
+function DeleteUser(user) {  
+  if(!window.confirm(`are you sure You want to Delete this User "${user.name}"`  )){
+    return false;
+  }
+  const form = useForm({
+    'user_id' : user.id ,
+  });
+  form.delete(route('group.remveUser' , props.group.slug , ),{
+    preserveScroll: true
+  });
+}
 function onROleChange(user,role) { 
  
   const form = useForm({
@@ -360,6 +371,7 @@ function UpdategroupInfo() {
                               :key="user.id" 
                               :show-role-drop-down="isCurrentUserAdmin"
                               @role-change="onROleChange"
+                              @Delete="DeleteUser(user)"
                               :disableRoleDropDown="group.user_id == user.id"
                               class="border-2 hover:border-indigo-400"
                               />

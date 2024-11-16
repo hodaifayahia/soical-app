@@ -21,6 +21,7 @@ use App\Notifications\InvitactionApproved;
 use App\Notifications\InvitationGroup;
 use App\Notifications\RequestApproved;
 use App\Notifications\RequestToJoinToGroup;
+use App\Notifications\UserRemovedUserFromGroup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -187,10 +188,37 @@ class GroupController extends Controller
         $groupuser->token_used = Carbon::now();
         $groupuser->save();
     
-        $adminuser = $groupuser->isOwner;
+        $adminuser = $groupuser->group->isOwner(Auth::id());
         $adminuser->notify(new InvitactionApproved($groupuser->group, $groupuser->user));
     
         return redirect(route('group.profile', $groupuser->group))->with('success','You acceccpted to join to group',$groupuser->ma);
+    }
+
+    public function remveUser(Request $request , Group $group)  {
+        if(!$group->isAdmin(Auth::id())){
+            return response('You don\'t have permission to perform this action', 403);
+        }
+    
+        $data = $request->validate([
+            'user_id' => ['required'],
+        ]);
+        if(!$group->isOwner(Auth::id())){
+            return response('the owner of this group can\'t be removed ', 403);
+        }
+    
+        $groupUser = GroupeUser::where('user_id', $data['user_id'])
+            ->where('group_id', $group->id)
+            ->first();
+    
+        if ($groupUser) {
+            $user = $groupUser->user;
+            $groupUser->delete();
+    
+            // Send notification to the user that their role was changed
+            $user->notify(new UserRemovedUserFromGroup($groupUser->group));
+        }
+    
+        return back();
     }
     public function join(Group $group)  {
         $user = request()->user();

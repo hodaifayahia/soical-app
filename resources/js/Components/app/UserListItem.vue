@@ -19,7 +19,7 @@ defineProps({
     },
 
 })
-defineEmits(['approved', 'reject', 'role-change']);
+defineEmits(['approved', 'reject', 'role-change' , 'Delete']);
 
 </script>
 <template>
@@ -46,7 +46,7 @@ defineEmits(['approved', 'reject', 'role-change']);
                             v-if="forApproved" @click.prevent="$emit('reject', user)"> Reject</button>
 
                     </div>
-                    <div v-if="showRoleDropDown" class="sm:col-span-3">
+                    <div v-if="showRoleDropDown" class="sm:col-span-3 flex ">
                         <div class="mt-2">
                             <select :disabled="disableRoleDropDown"
                                 @change="$emit('role-change', user, $event.target.value)"
@@ -55,6 +55,11 @@ defineEmits(['approved', 'reject', 'role-change']);
                                 <option value="USER" :selected="user.role == 'USER'">USER</option>
                             </select>
                         </div>
+                        <button 
+                          class=" text-sm w-17  px-1  h-8 mt-2.5 ml-2 rounded bg-gray-700 hover:bg-gray-900 text-white disabled:bg-gray-500"
+                          :disabled="disableRoleDropDown" 
+                          @click="$emit('Delete', user , $event.target.value)" 
+                        >Delete</button>
                     </div>
 
 

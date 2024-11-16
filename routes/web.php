@@ -29,6 +29,9 @@ Route::get('/g/{group:slug}', [GroupController::class, 'profile'])->name('group.
 Route::get('/group/approve-invitation/{group:token}', [GroupController::class, 'ApproveInvitation'])
 ->name('group.approve-invitation');
 
+Route::delete('/group/remove-user/{group:slug}', [GroupController::class, 'remveUser'])
+->name('group.remveUser');
+
 Route::middleware('auth')->group(function () {
     Route::post('/profile/update-iamges', [ProfileController::class, 'UpdateImages'])
          ->name('profile.updateimages');

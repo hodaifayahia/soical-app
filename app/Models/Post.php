@@ -57,7 +57,7 @@ class Post extends Model
         return $this->hasMany(Comment::class);
     }
     
-    public function isOnwer($userId)
+    public function isOwner($userId)
     {
         return $this->user_id == $userId; 
     }

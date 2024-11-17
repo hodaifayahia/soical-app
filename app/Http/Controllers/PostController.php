@@ -11,12 +11,18 @@ use App\Models\Comment;
 use App\Models\Post;
 use App\Models\PostAttachements;
 use App\Models\Reaction;
+use App\Models\User;
+use App\Notifications\CommentCreated;
 use App\Notifications\CommentDeleted;
+use App\Notifications\PostCreated;
 use App\Notifications\PostDeleted;
+use App\Notifications\ReactionMadeOnComment;
+use App\Notifications\ReactionMadeOnPost;
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Pest\Support\Str;
 
@@ -52,6 +58,12 @@ public function store(StorePostRequest $request)
         }
         
         DB::commit();
+
+        $group = $post->group;
+        if ($group) {
+            $users = $group->GroupUsers()->where('users.id','!=',$user->id)->get();
+            Notification::send($users ,new PostCreated($post,$group));
+        }
         return back();
     } catch (\Throwable $th) {
         foreach ($attachmentsPaths as $path) {
@@ -167,7 +179,13 @@ public function store(StorePostRequest $request)
                 'type' => $data['reaction']
             ]);
             
-        }      $reactions =  Reaction::where('object_id', $post->id)->where('object_type' , Post::class)->count();
+        }  
+            $reactions =  Reaction::where('object_id', $post->id)->where('object_type' , Post::class)->count();
+            if(!$post->isOwner($user_id)){
+                $user = User::where('id',$user_id)->first();
+                $post->user->notify(new ReactionMadeOnPost($post , $user));
+            }
+
     
         return response([
             'num_of_reaction' => $reactions,
@@ -188,6 +206,9 @@ public function store(StorePostRequest $request)
             'parent_id' => $data['parent_id'] ?:  null,
             'user_id' => Auth::id()
         ]);
+
+        $post = $comment->post;
+        $post->user->notify(new CommentCreated($post , $comment));
         
         return response(new CommentResource($comment), 201);
     }
@@ -250,7 +271,13 @@ public function store(StorePostRequest $request)
     
             // Count reactions for the comment
              $reactions =  Reaction::where('object_id', $comment->id)->where('object_type' , Comment::class)->count();
-            // Return response with reaction count and user reaction status
+            
+             if(!$comment->isOwner($user_id)){
+                $user = User::where('id',$user_id)->first();
+                $comment->user->notify(new ReactionMadeOnComment($comment , $comment->post, $user));
+            }
+            
+             // Return response with reaction count and user reaction status
             return response()->json([
                 'num_of_reaction' => $reactions,
                 'current_user_has_reaction' => $hasReaction,

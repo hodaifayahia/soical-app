@@ -30,7 +30,7 @@ class Comment extends Model
     public function comments() : HasMany {
          return $this->hasMany(self::class , 'parent_id');
     }
-    public function isOnwer($userId)
+    public function isOwner($userId)
     {
         return $this->user_id == $userId; 
     }

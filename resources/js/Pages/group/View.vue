@@ -397,9 +397,13 @@ function UpdategroupInfo() {
               <ul>Photos</ul>
             </TabPanel>
             <TabPanel :class="['bg-white p-3 shadow', 'focus:outline-none focus:ring-2']">
-                <GroupModelForm :form ="Aboutform" /> 
-                <PrimaryButton @click="UpdategroupInfo" >Save</PrimaryButton>
-              </TabPanel>
+              <template v-if="isCurrentUserAdmin">
+                <GroupModelForm :form ="Aboutform"/> 
+                <PrimaryButton  @click="UpdategroupInfo" >Save</PrimaryButton>
+              </template>
+              <div v-else v-html="props.group.about">
+              </div>
+            </TabPanel>
           </TabPanels>
         </TabGroup>
       </div>

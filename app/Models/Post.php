@@ -66,7 +66,7 @@ class Post extends Model
 
     public static function PostFroTimeLine($userId) : Builder {
         return Post::query()// select * form post 
-        ->withCount('reactions') // selct count form reactions
+        ->withCount('reactions') // selct count likes in post form reactions
         ->with([
             'comments' => function ($query) {
                 $query->withCount('reactions'); // selct count form reactions // select * from comments where post (1,2..)

@@ -58,6 +58,7 @@ Route::middleware('auth')->group(function () {
 
     //posts
     Route::post('/post',[PostController::class , 'store'])->name('post.create');
+    Route::get('/Post/view/{post}',[PostController::class , 'view'])->name('post.view');
     Route::put('/post/{post}', [PostController::class, 'update'])->name('post.update');
     Route::delete('/post/{post}',[PostController::class , 'destroy'])->name('post.destroy');
     Route::get('/post/download/{attachment}',[PostController::class , 'downloadAttachment'])->name('post.download');

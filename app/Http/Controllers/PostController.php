@@ -7,6 +7,7 @@ use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdateCommentRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Http\Resources\CommentResource;
+use App\Http\Resources\PostResource;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\PostAttachements;
@@ -75,7 +76,18 @@ public function store(StorePostRequest $request)
     }
     return back();
 }
-
+public function view(Post $post)  {
+   $post->load('reactions');
+   $post->load([
+    'comments' => function ($query) {
+        $query->withCount('reactions'); // selct count form reactions // select * from comments where post (1,2..)
+          
+    }
+]);
+    return inertia('Post/view',[
+        'post' =>new PostResource($post),
+    ]);
+}
 
 
     /**

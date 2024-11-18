@@ -11,11 +11,11 @@ const props = defineProps({
     posts: Array,
 });
 const page = usePage(); 
-const AuthUser = usePage().props.auth.user;
 const allPosts = ref({
-    data: page.props.posts.data,
-    next: page.props.posts.links.next
+  data: page.props.posts.data,
+  next: page.props.posts.links.next
 })
+const AuthUser = usePage().props.auth.user;
 
 
 const showEditModel = ref(false); // Changed variable name to camelCase
@@ -32,7 +32,7 @@ function openEditModel(post) { // Changed parameter name to singular form
 }
 function openAttachmentPreviewModel(post, index) {
     AttachmentModel.value = {
-        post, // should contain the post data with the attachments
+       post, // should contain the post data with the attachments
         index // should be a valid index within the attachments array
     };
     showPreviewModel.value = true;
@@ -96,6 +96,7 @@ watch(() => page.props.posts, (newPosts) => {
     </div>
     <PostModel :post="editPost" v-model="showEditModel" @hide="onModelHiden" />
     <div ref="loadMoreIntersect"></div>
+  
     <attachmentPreviewModel :Attachments="AttachmentModel.post?.attachments || []" v-model:index="AttachmentModel.index" v-model="showPreviewModel" />
   </template>
 

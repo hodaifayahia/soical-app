@@ -1,8 +1,8 @@
 <script setup>
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue';
-import { PencilIcon, TrashIcon, EllipsisVerticalIcon,  } from '@heroicons/vue/20/solid';
-import { usePage  } from '@inertiajs/vue3';
-import {  computed } from "vue";
+import { PencilIcon, TrashIcon, EllipsisVerticalIcon, EyeIcon, ClipboardIcon } from '@heroicons/vue/20/solid';
+import { usePage  ,Link} from '@inertiajs/vue3';
+import {  computed ,ref } from "vue";
 
 
 defineEmits(['edit','delete']);
@@ -32,6 +32,27 @@ const deletedIsAllowed = computed(() => {
     return !props.comment && props.posts.group?.role == 'ADMIN'; // Admin in a group can delete a post.
 });
 
+
+const textToCopy = ref(route('post.view',props.posts.id))
+const copySuccess = ref(false)
+const buttonText = ref('Copy to Clipboard')
+
+const copyToClipboard = async () => {
+  try {
+    await navigator.clipboard.writeText(textToCopy.value)
+    copySuccess.value = true
+    buttonText.value = 'Copied!'
+    
+    // Reset button state after 2 seconds
+    setTimeout(() => {
+      copySuccess.value = false
+      buttonText.value = 'Copy to Clipboard'
+    }, 2000)
+  } catch (err) {
+    console.error('Failed to copy text: ', err)
+    buttonText.value = 'Failed to copy'
+  }
+}
 
 
 
@@ -69,6 +90,30 @@ const deletedIsAllowed = computed(() => {
                                 </MenuItem>
 
                             </div>
+                            <div class="px-1 py-1">
+                                <MenuItem v-if="deletedIsAllowed" v-slot="{ active }">
+                                <Link   :class="[
+                                    active ? 'bg-indigo-500 text-white' : 'text-gray-900',
+                                    'group flex w-full items-center rounded-md px-2 py-2 text-sm',
+                                ]" :href="route('post.view',posts.id)">
+                                    <EyeIcon :active="active" class="mr-2 h-5 w-5 text-indigo-400"
+                                        aria-hidden="true" />
+                                    Open Post
+                                </Link>
+                                </MenuItem>
+                            </div>
+                            <div class="px-1 py-1">
+                                <MenuItem v-if="deletedIsAllowed" v-slot="{ active }">
+                                <button   :class="[
+                                    active ? 'bg-indigo-500 text-white' : 'text-gray-900',
+                                    'group flex w-full items-center rounded-md px-2 py-2 text-sm',
+                                ]" @click="copyToClipboard">
+                                    <ClipboardIcon :active="active" class="mr-2 h-5 w-5 text-indigo-400"
+                                        aria-hidden="true" />
+                                    
+                                 Copy URL</button>
+                                </MenuItem>
+                            </div>
 
                             <div class="px-1 py-1">
                                 <MenuItem v-if="deletedIsAllowed" v-slot="{ active }">
@@ -82,6 +127,7 @@ const deletedIsAllowed = computed(() => {
                                 </button>
                                 </MenuItem>
                             </div>
+                          
                         </MenuItems>
                     </transition>
                 </Menu>

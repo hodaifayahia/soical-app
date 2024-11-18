@@ -61,7 +61,7 @@ function sendReaction() {
             </ReadlessReadMore>
         </div>
         <div class="grid gap-2" :class="`grid-cols-${Math.min(props.post.attachments.length, 2)}`">
-            <PostAttachments :attachments="post.attachments" @clickAttachement="openAttachment(ind)"  />
+            <PostAttachments :attachments="post.attachments" @clickAttachement="openAttachment"  />
         </div>
         <Disclosure v-slot="{ open }">
             <div class="flex justify-around mt-2 gap-2 ">

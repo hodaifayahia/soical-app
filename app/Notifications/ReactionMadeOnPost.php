@@ -38,7 +38,7 @@ class ReactionMadeOnPost extends Notification
     {
         return (new MailMessage)
                     ->line('User'.$this->user->username.' linked Your Post.')
-                    ->action('view Post', url('/'))
+                    ->action('view Post', route('post.view',$this->post))
                     ->line('Thank you for using our application!');
     }
 

@@ -15,6 +15,8 @@ const props = defineProps({
   },
   modelValue: Boolean
 });
+console.log(props.Attachments);
+
 
 const emit = defineEmits(['update:modelValue', 'hide', 'update:index']);
 
@@ -28,6 +30,8 @@ const CurrentIndex = computed({
   set: (value) => emit('update:index', value)
 });
 
+
+
 function closeModal() {
   show.value = false;
   emit('hide');
@@ -38,8 +42,8 @@ function resetModel() {
 
   attachementFiles.value = [];
   emit('update:modelValue', false);
-  if (props.post.attachments) {
-    props.post.attachments.forEach(file => {
+  if (props.Attachments) {
+    props.Attachments.forEach(file => {
       file.deleted = false;
     });
   }
@@ -49,6 +53,8 @@ function resetModel() {
 const attachement = computed(() => {
   return props.Attachments[CurrentIndex.value];
 })
+
+
 
 function goToPreviousAttachment() {
   if (CurrentIndex.value == 0) return;

@@ -2,23 +2,21 @@
 
 namespace App\Notifications;
 
-use App\Models\Comment;
-use App\Models\Post;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\Str;
+use phpDocumentor\Reflection\Types\Boolean;
 
-class CommentCreated extends Notification
+class FollowUser extends Notification
 {
     use Queueable;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(public Post $post ,public Comment $comment)
+    public function __construct(public User $user , public Boolean $follow)
     {
         //
     }
@@ -38,11 +36,15 @@ class CommentCreated extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
+        if($this->follow){
+            $subject = 'user '. $this->user->username. ' has followed you  .';
+        }else{
+            $subject = 'user '. $this->user->username. ' is no more followed you .';
+        }
         return (new MailMessage)
-                    ->greeting('Hellow my Frind')
-                    ->line('User"'.$this->comment->user->username.'"comment in your post  pls see the comment below.')
-                    ->line(" ".$this->comment->comment ."")
-                    ->action('view post', route('post.view',$this->post->id))
+                    ->subject($subject)
+                    ->line($subject)
+                    ->action('view '.$this->user->username.'', url(route('profile',$this->user)))
                     ->line('Thank you for using our application!');
     }
 

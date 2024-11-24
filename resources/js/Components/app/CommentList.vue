@@ -27,7 +27,7 @@ const edittingComment = ref(null);
 const emit = defineEmits(['DeleteComment','CreateComment']);
 
 function createComment() {
-  axiosClient.post(route('comment.create', props.post), {
+  axiosClient.post(route('post.comment.create', props.post), {
     comment: newCommentText.value,
     parent_id: props.ParentComment ? props.ParentComment.id : null
   })

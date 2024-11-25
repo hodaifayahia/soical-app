@@ -6,9 +6,13 @@ import TabItem from '@/Pages/Profile/Partials/TabItem.vue';
 import Edit from '@/Pages/Profile/Edit.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { usePage } from "@inertiajs/vue3";
-import { CheckCircleIcon, XMarkIcon, CameraIcon ,PencilIcon} from '@heroicons/vue/24/solid'
+import { CheckCircleIcon, XMarkIcon, CameraIcon, PencilIcon } from '@heroicons/vue/24/solid'
 import { useForm } from '@inertiajs/vue3'
 import DangerButton from '@/Components/DangerButton.vue';
+import CreatePost from '@/Components/app/CreatePost.vue';
+import PostList from '@/Components/app/PostList.vue';
+import UserListItem from '@/Components/app/UserListItem.vue';
+import TextInput from '@/Components/TextInput.vue';
 
 const ImageForm = useForm({
   cover: null,
@@ -19,6 +23,8 @@ const AuthUser = usePage().props.auth.user;
 const ShowNotificatino = ref(true);
 const CoverImgSrc = ref('');
 const AvatarImgSrc = ref('');
+const searchKeyWordfollowers = ref('');
+const searchKeyWordfollowing = ref('');
 
 const props = defineProps({
   errors: {
@@ -33,11 +39,20 @@ const props = defineProps({
   user: {
     type: Object,
   },
-  isCurrentUserFollower:{
+  isCurrentUserFollower: {
     type: Boolean,
   },
-  follwerCount:{
+  follwerCount: {
     type: Number,
+  },
+  posts: {
+    type: Object
+  },
+  followers: {
+    type: Array
+  },
+  following: {
+    type: Array
   }
 });
 
@@ -97,7 +112,7 @@ function SaveAvatarImage() {
   ImageForm.post(route('profile.updateimages'), {
     preserveScroll: true,
     onSuccess: (user) => {
-      ShowNotificatino.value= true;
+      ShowNotificatino.value = true;
       CancelAvatarImage();
       setTimeout(() => {
         ShowNotificatino.value = false;
@@ -108,11 +123,11 @@ function SaveAvatarImage() {
 
 function followUser() {
   const form = useForm({
-    follow: !props.isCurrentUserFollower 
+    follow: !props.isCurrentUserFollower
   });
 
-  form.post(route('user.follow',props.user.id),{
-    preserveScroll:true
+  form.post(route('user.follow', props.user.id), {
+    preserveScroll: true
   })
 }
 </script>
@@ -207,7 +222,8 @@ function followUser() {
         <div class="py-2 flex flex-col sm:flex-row items-center sm:items-end px-4 -mt-16 sm:-mt-20">
           <div class="relative group">
             <div>
-              <img class="w-24 h-24 sm:w-28 sm:h-28 group-hover:opacity-70  rounded-full border-4 border-white object-cover"
+              <img
+                class="w-24 h-24 sm:w-28 sm:h-28 group-hover:opacity-70  rounded-full border-4 border-white object-cover"
                 :src="AvatarImgSrc || user.avatar_url || '/img/default_avatar.jpg'" alt="Avatar">
             </div>
             <div
@@ -236,14 +252,15 @@ function followUser() {
             <h1 class="font-bold text-lg">{{ user.name }}</h1>
             <p class="text-xs text-gray-500">{{ follwerCount }} follwers</p>
           </div>
-          <div class="mt-4 sm:mt-0 sm:ml-auto">
-            
-              <PrimaryButton v-if="!isCurrentUserFollower"  @click="followUser"class="text-sm">
-                   Follow User
+          <div class="mt-4 sm:mt-0 sm:ml-auto ">
+            <template v-if="!isMyProfile">
+              <PrimaryButton v-if="!isCurrentUserFollower" @click="followUser" class="text-sm">
+                Follow User
               </PrimaryButton>
-              <DangerButton v-else  @click="followUser"  class="bg-red-500 text-sm">
-                   UnFollow
+              <DangerButton v-else @click="followUser" class="bg-red-500 text-sm">
+                UnFollow
               </DangerButton>
+            </template>
 
             <!-- <PrimaryButton v-if="isMyProfile" class="text-sm">
               <PencilIcon class="w-4 h-4 mr-2" />
@@ -280,15 +297,45 @@ function followUser() {
               </ul>
             </TabPanel>
             <TabPanel
-              :class="['rounded-xl bg-white p-3 shadow', 'ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2']">
-              <ul>Posts</ul>
+              :class="['rounded-xl bg-gray p-3 shadow rounded-xl', 'ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2']">
+              <template v-if="posts">
+                <CreatePost />
+                <PostList :posts="posts.data" class="flex-1 overflow-auto"></PostList>
+              </template>
+              <div v-else class="py-8 text-center">
+                You Don't Have Permission to view These Posts
+              </div>
             </TabPanel>
             <TabPanel
               :class="['bg-white p-3 shadow', 'ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2']">
-              <ul>Followers</ul>
+              <div class="m-3">
+                <TextInput v-model="searchKeyWordfollowers" placeholder="search for group"
+                  class="mb-2 w-full p-2 border rounded" />
+              </div>
+              <div v-if="followers.length"class="grid grid-cols-2 bg-slate-50 ">
+                <UserListItem v-for="user of followers" :user="user" class="border-2 hover:border-indigo-400" />
+              </div>
+              <div v-else class="p-6 bg-white border border-gray-300 rounded-lg text-center shadow-sm">
+                <p class="text-gray-600 text-lg font-medium">
+                  The user does not follow anybody yet.
+                </p>
+              </div>
             </TabPanel>
             <TabPanel :class="['bg-white p-3 shadow', 'focus:outline-none focus:ring-2']">
-              <ul>Following</ul>
+              <div class="m-3">
+                <TextInput v-model="searchKeyWordfollowing" placeholder="search for group"
+                  class="mb-2 w-full p-2 border rounded" />
+              </div>
+              <div v-if="following.length"class="grid grid-cols-2 bg-slate-50 ">
+                <UserListItem v-for="user of following" :user="user" class="border-2 hover:border-indigo-400" />
+              </div>
+              <div v-else class="p-6 bg-white border border-gray-300 rounded-lg text-center shadow-sm">
+                <p class="text-gray-600 text-lg font-medium">
+                  The user does not follow anybody yet.
+                </p>
+              </div>
+            
+
             </TabPanel>
             <TabPanel :class="['bg-white p-3 shadow', 'focus:outline-none focus:ring-2']">
               <ul>Photos</ul>

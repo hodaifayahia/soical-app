@@ -351,7 +351,10 @@ function UpdategroupInfo() {
             <TabPanel>
               <template v-if="posts">
                 <CreatePost  :group="group"/>
-                <PostList :posts="posts.data" class="flex-1 overflow-auto"></PostList>
+                <PostList v-if="posts.data.length" :posts="posts.data" class="flex-1 overflow-auto"></PostList>
+                <div v-else   class="py-8 text-center">
+                  There no posts in the group ,Be the first and create it .
+                </div>
               </template>
                 <div v-else class="py-8 text-center">
                   You Don't Have Permission to view These Posts
@@ -401,7 +404,7 @@ function UpdategroupInfo() {
                 <GroupModelForm :form ="Aboutform"/> 
                 <PrimaryButton  @click="UpdategroupInfo" >Save</PrimaryButton>
               </template>
-              <div v-else v-html="props.group.about">
+              <div class="ck-content-output" v-else v-html="props.group.about">
               </div>
             </TabPanel>
           </TabPanels>

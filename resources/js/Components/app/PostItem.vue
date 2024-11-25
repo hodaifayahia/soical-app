@@ -48,7 +48,7 @@ function sendReaction() {
 
 <template>
 
-    <div class="p-6 bg-white rounded  mb-4">
+    <div class="p-6 bg-white  rounded  mb-4">
         <div class="flex items-center mb-4 justify-between">
             <PostUserHeader :post="post" :showTime="true" />
             <div>

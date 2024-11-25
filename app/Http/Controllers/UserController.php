@@ -13,8 +13,9 @@ class UserController extends Controller
     public function follow(Request $request,  User $user)  {
 
         $data = $request->validate([
-            'follow'=>['boolean'],
+            'follow'=>['Boolean'],
         ]);
+        $Follwerstatus = $data['follow'];
 
         if ($data['follow']) {
             $message = "you are following ".$user->name. "";
@@ -31,7 +32,7 @@ class UserController extends Controller
             ->where('follower_id',Auth::id())
             ->delete();
         }
-        $this->notify(new FollowUser(Auth::getUser(),$data['follow']));
+        $user->notify(new FollowUser(Auth::getUser(),$Follwerstatus));
 
         
         return back()->with('success',$message);

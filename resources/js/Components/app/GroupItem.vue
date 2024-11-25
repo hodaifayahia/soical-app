@@ -17,7 +17,7 @@ defineProps({
                     {{ group.status === 'APPROVED'? (group.role === 'admin' ? group.role : "") : "not approved"}}
                 </span>
             </div>
-            <div class=" mr-1 text-sm w-full sm:w-[240px]">{{ group.description }}</div>
+            <div class=" mr-1 text-sm w-full sm:w-[240px]" v-html="group.description"></div>
         </div>
     </Link>
 </template>

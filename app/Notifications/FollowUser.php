@@ -7,7 +7,6 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use phpDocumentor\Reflection\Types\Boolean;
 
 class FollowUser extends Notification
 {
@@ -16,7 +15,7 @@ class FollowUser extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(public User $user , public Boolean $follow)
+    public function __construct(public User $user , public bool $follow)
     {
         //
     }

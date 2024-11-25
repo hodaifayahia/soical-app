@@ -3,11 +3,16 @@
 import TextArea from '../TextArea.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Checkbox from '@/Components/Checkbox.vue';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 defineProps({
     form: Object,
     disable:Boolean,
 });
+const editor = ClassicEditor;
+const editorConfig = {
+  toolbar: ['heading', '|', 'bold', 'italic', '|', 'link', '|', 'bulletedList', 'numberedList', '|', 'outdent', 'indent', 'blockquote'],
+};
 </script>
 
 <template>
@@ -32,8 +37,7 @@ defineProps({
                 </div> 
                 <div class="mb-3">
                   <label>About Group</label>
-                  <TextArea  :class="[{ 'disabled': disable }]"
-                  :disabled="disable" v-model="form.about" class="w-full mb-3"/>
+                  <ckeditor :editor="editor" v-model="form.about" :config="editorConfig"></ckeditor>
                 </div>
    
 

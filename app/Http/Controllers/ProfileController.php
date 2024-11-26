@@ -40,18 +40,10 @@ class ProfileController extends Controller
             return $posts;
         }
        // Fetch followers
-            $followers = User::query()
-                ->select('users.*')
-                ->join('followers AS f', 'f.follower_id', '=', 'users.id')
-                ->where('f.user_id', $user->id)
-                ->get();
+            $followers = $user->Followers;
 
             // Fetch following
-            $following = User::query()
-                ->select('users.*')
-                ->join('followers AS f', 'f.user_id', '=', 'users.id')
-                ->where('f.follower_id', $user->id)
-                ->get();
+            $following = $user->Following;
 
         return Inertia::render('Profile/View', [
             'mustVerifyEmail' => $user instanceof MustVerifyEmail,

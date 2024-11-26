@@ -2,7 +2,9 @@
 
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
 import FollowingListItems from '@/Components/app/FollowingListItems.vue' ;
-
+defineProps({
+  users:Array,
+});
 </script>
 <template>
   <div class="text-center p-2 bg-white rounded  lg:h-full overflow-hidden flex flex-col">
@@ -26,8 +28,7 @@ import FollowingListItems from '@/Components/app/FollowingListItems.vue' ;
 
             </DisclosureButton>
             <DisclosurePanel>
-             
-                 <FollowingListItems/>
+                 <FollowingListItems :users ="users"/>
             </DisclosurePanel>
           </div>
         </template>
@@ -36,7 +37,7 @@ import FollowingListItems from '@/Components/app/FollowingListItems.vue' ;
     <!-- Large screens: Always show content -->
     <div class="hidden lg:flex flex-col flex-1 h-full overflow-auto ">
        <h2 class="text-xl font-bold m-8">My Following </h2>
-        <FollowingListItems/>
+        <FollowingListItems :users ="users" />
     </div>
   </div>
 </template>

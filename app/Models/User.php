@@ -3,7 +3,9 @@
 namespace App\Models;
 
  use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Sluggable\HasSlug;
@@ -55,6 +57,14 @@ class User extends Authenticatable implements MustVerifyEmail
             ->generateSlugsFrom('name')
             ->saveSlugsTo('username')
             ->doNotGenerateSlugsOnUpdate();
+    }
+    public function Followers() : BelongsToMany {
+        return $this->belongsToMany(User::class, 'followers','user_id','follower_id');
+           
+    }
+    public function Following() : BelongsToMany {
+        return $this->belongsToMany(User::class, 'followers','user_id','follower_id');
+           
     }
     
 }

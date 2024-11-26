@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\Group;
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -16,7 +17,7 @@ class PostCreated extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(public Post $post ,public Group $group)
+    public function __construct(public Post $post ,public User $user,public ?Group $group= null)
     {
         //
     }
@@ -37,9 +38,19 @@ class PostCreated extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->line('New Post has been added in '.$this->group->slug.'.')
-                    ->action('view post', route('post.view',$this->post)) //TODO
-                    ->line('Thank you for using our application!');
+        ->subject('New Post Created')
+        ->greeting('Hello!')
+        ->lineIf(
+            !!$this->group,
+            'New Post has been added by user ' . ($this->user?->username ?? "unknown user") . ' on ' . ($this->group?->slug ?? "unknown group") . '.'
+        )
+        ->lineIf(
+           !$this->group,
+            'New Post has been added by user ' . ($this->user?->username ?? "unknown user") .' '
+        )
+        ->action('View Post', route('post.view', $this->post->id)) // Ensure 'post.view' is defined in routes
+        ->line('Thank you for using our application!');
+
     }
 
     /**

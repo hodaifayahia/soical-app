@@ -9,11 +9,13 @@ use App\Http\Requests\StoreGroupRequest;
 use App\Http\Requests\UpdateGroupRequest;
 use App\Http\Resources\GroupResource;
 use App\Http\Resources\GroupUserResource;
+use App\Http\Resources\PostAttachementResource;
 use App\Http\Resources\PostResource;
 use App\Http\Resources\UserResource;
 use App\Models\Group;
 use App\Models\GroupeUser;
 use App\Models\Post;
+use App\Models\PostAttachements;
 use App\Models\User;
 use App\Notifications\ChangeRoleRequest;
 use App\Notifications\ChangeROllRequest;
@@ -65,12 +67,28 @@ class GroupController extends Controller
                         
         $Request = $group->PenddingUsers()->orderBy('name')->get();
 
+
+        $Photos = PostAttachements::query()
+        ->select('post_attachements.*')
+        ->join('posts as p', 'p.id', '=', 'post_attachements.post_id')
+        // ->join('groupe_users as gu', function ($join) use ($group) {
+        //     $join->on('gu.group_id', '=', 'p.group_id')
+        //          ->where('gu.group_id', $group->id)
+        //          ->where('gu.status', GroupStatusEnum::APPROVED);
+        // })
+        ->where('p.group_id',$group->id)
+        ->where('mime', 'like', 'image/%')
+        ->latest()
+        ->get();
+    
+
         return Inertia::render('group/View', [
             'success' => session('success'),
             'group' => new GroupResource($group),
             'users'=> GroupUserResource::collection($users),
             'posts'=> $posts,
             'Requests'=> UserResource::collection($Request),
+            'Photos' => PostAttachementResource::collection($Photos),
         ]);
     }
 

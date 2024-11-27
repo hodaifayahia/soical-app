@@ -22,7 +22,6 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'; // Adjust t
            <GroupList :groups="groups" />
         </div>
         <div class="lg:col-span-3 lg:order-3 bg-gray-100 h-full overflow-auto ">
-            <pre>{{following  }}</pre>
             <FollowingList  :users ="following" />
         </div>
         <div class="lg:col-span-6 lg:order-2 h-full overflow-auto flex flex-col">

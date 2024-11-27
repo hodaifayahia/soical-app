@@ -5,6 +5,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import TabItem from '@/Pages/Profile/Partials/TabItem.vue';
 import Edit from '@/Pages/Profile/Edit.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import TabPhotos from '@/Pages/Profile/TabPhotos.vue';
 import { usePage } from "@inertiajs/vue3";
 import { CheckCircleIcon, XMarkIcon, CameraIcon, PencilIcon } from '@heroicons/vue/24/solid'
 import { useForm } from '@inertiajs/vue3'
@@ -12,6 +13,7 @@ import DangerButton from '@/Components/DangerButton.vue';
 import CreatePost from '@/Components/app/CreatePost.vue';
 import PostList from '@/Components/app/PostList.vue';
 import UserListItem from '@/Components/app/UserListItem.vue';
+import PostAttachments from '@/Components/app/PostAttachments.vue';
 import TextInput from '@/Components/TextInput.vue';
 
 const ImageForm = useForm({
@@ -25,6 +27,7 @@ const CoverImgSrc = ref('');
 const AvatarImgSrc = ref('');
 const searchKeyWordfollowers = ref('');
 const searchKeyWordfollowing = ref('');
+
 
 const props = defineProps({
   errors: {
@@ -53,7 +56,11 @@ const props = defineProps({
   },
   following: {
     type: Array
-  }
+  },
+  Photos: {
+    type: Array
+  },
+
 });
 
 
@@ -338,7 +345,7 @@ function followUser() {
 
             </TabPanel>
             <TabPanel :class="['bg-white p-3 shadow', 'focus:outline-none focus:ring-2']">
-              <ul>Photos</ul>
+              <TabPhotos :Photos="Photos" />
             </TabPanel>
           </TabPanels>
         </TabGroup>

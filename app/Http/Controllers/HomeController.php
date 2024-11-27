@@ -52,12 +52,11 @@ class HomeController extends Controller
             ->orderby('name','desc')
             ->get();
             
-         
         
         return Inertia::render('home', [
             'posts' => $posts,
             'groups' => GroupResource::collection($groups),
-            'following' => UserResource::collection($user->following),
+            'following' => UserResource::collection($user->Following),
         ]);
     }
 }

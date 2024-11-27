@@ -13,6 +13,7 @@ import TextInput from '@/Components/TextInput.vue';
 import GroupModelForm from '@/Components/app/GroupModelForm.vue';
 import PostList from '@/Components/app/PostList.vue'; // Adjust the path as necessary
 import CreatePost from '@/Components/app/CreatePost.vue'; // Adjust the path as necessary
+import TabPhotos from '@/Pages/Profile/TabPhotos.vue'; // Adjust the path as necessary
 
 const ImageForm = useForm({
   cover: null,
@@ -43,6 +44,9 @@ const props = defineProps({
   },
   Requests: {
     type: Array,
+  },
+  Photos: {
+    type: Array
   },
 });
 
@@ -397,7 +401,7 @@ function UpdategroupInfo() {
               </div>
               </TabPanel>
             <TabPanel :class="['bg-white p-3 shadow', 'focus:outline-none focus:ring-2']">
-              <ul>Photos</ul>
+              <TabPhotos :Photos="Photos" />
             </TabPanel>
             <TabPanel :class="['bg-white p-3 shadow', 'focus:outline-none focus:ring-2']">
               <template v-if="isCurrentUserAdmin">

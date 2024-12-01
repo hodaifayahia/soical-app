@@ -31,9 +31,10 @@ class HomeController extends Controller
     ->where(function ($query) use ($userId) {
         $query->whereNotNull('f.follower_id') 
               ->orWhereNotNull('gu.group_id') // Condition for group membership
-              ->orWhere('posts.user_id', '=', $userId); // Replace 1 with Auth::id() if for the current user
+              ->orWhere('posts.user_id', '=', $userId)
+              ->orWhereNull('posts.group_id');
     })
-    ->whereNot('posts.user_id',$userId)
+    // ->whereNot('posts.user_id',$userId)
     ->select('posts.*') // Select only posts columns
     ->paginate(10);
 

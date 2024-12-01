@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
+use Gemini\Laravel\Facades\Gemini;
 use Pest\Support\Str;
 
 
@@ -302,4 +303,32 @@ public function view(Post $post)  {
     
 
     }
+public function aiPostsUsingGemini(Request $request)
+{
+    $prompt = $request->get('prompt');
+    try {
+        // Generate content using the Gemini service
+        $result = Gemini::geminiPro()->generateContent(
+            'Based on the following prompt, generate a social media post with the following requirements:' . PHP_EOL . PHP_EOL .
+            '- Use new lines for formatting the content clearly.' . PHP_EOL .
+            '- Include the hashtags at the bottom, each on its own line and use icons to  make the propt more interactive.' . PHP_EOL . PHP_EOL .
+            'Prompt: ' . $prompt
+        );
+        
+
+        // Return the generated text as JSON response
+        return response()->json([
+            'success' => true,
+            'data' => $result->text(),
+        ]);
+    } catch (\Exception $e) {
+        // Handle potential errors and return a meaningful response
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to generate content. Please try again later.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
 }
+}
+

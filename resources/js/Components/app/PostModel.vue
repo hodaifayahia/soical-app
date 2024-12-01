@@ -4,8 +4,10 @@ import { useForm, usePage } from '@inertiajs/vue3';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { TransitionRoot, TransitionChild, Dialog, DialogPanel, DialogTitle } from '@headlessui/vue';
 import PostUserHeader from './PostUserHeader.vue';
-import { XMarkIcon, PaperClipIcon, BookmarkIcon ,ArrowUturnLeftIcon} from '@heroicons/vue/24/solid';
+import { XMarkIcon, PaperClipIcon, BookmarkIcon ,ArrowUturnLeftIcon , SparklesIcon} from '@heroicons/vue/24/solid';
 import { isImage } from "@/helper.js";
+import axiosClient from '@/axiosClient.js';
+
 
 const props = defineProps({
   post: {
@@ -22,6 +24,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'hide']);
 const attachementErrors = ref([]);
 let showExtentionText = ref(false);
+const showspinAiButton = ref(false);
 const FormErrors = ref({});
 
 const attachementFiles = ref([]);
@@ -181,6 +184,28 @@ function resetModel() {
   
 }
 
+function generateAiPost() {
+  if (!form.body || form.body.trim() === '') {
+    console.error('Prompt body is empty.');
+    return;
+  }
+  showspinAiButton.value = true;
+
+  axiosClient.post(route('post.aiPostsUsingGemini'), { prompt: form.body })
+    .then((response) => {
+      form.body = response.data.data; // Update form body with AI-generated content
+      showspinAiButton.value = false;
+
+    })
+    .catch((error) => {
+      showspinAiButton.value = false;
+
+    });
+}
+
+
+
+
 
 
 </script>
@@ -214,7 +239,31 @@ function resetModel() {
                 <PostUserHeader :post="post" :showTime="false" class="mb-2 m-2" />
                 <div class="p-3 mt-3 ">
                   <h3 v-if="FormErrors.group_id" class=" text-white px-2 py-3 bg-red-500 rounded ">{{ FormErrors.group_id }}</h3>
-                  <ckeditor :editor="editor" v-model="form.body" :config="editorConfig"></ckeditor>
+                  <div class="relative group">
+  <ckeditor :editor="editor" v-model="form.body" :config="editorConfig"></ckeditor>
+
+  <button
+    class="opacity-0 group-hover:opacity-100 absolute bottom-1 right-3 bg-gradient-to-r from-indigo-400 to-indigo-600 rounded hover:from-indigo-500 hover:to-indigo-700 text-white w-8 h-8 flex items-center justify-center"
+    @click="generateAiPost"
+  >
+    <svg
+      v-if="showspinAiButton"
+      xmlns="http://www.w3.org/2000/svg"
+      class="animate-spin h-5 w-5 text-white cursor-not-allowed"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path
+        class="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      ></path>
+    </svg>
+
+    <SparklesIcon v-else class="w-6 h-6 text-white" />
+  </button>
+</div>
                  <div v-if="attachementFiles.length" class="border-l-4 px-2 border-sky-500 py-3 mt-3 bg-sky-100  border-1 text-gray-800">
                   The attachement need to be one of these extension  <br>
                   <small>{{ attachmentExtentions.join(', ') }}</small>
@@ -272,6 +321,7 @@ function resetModel() {
                       <input type="file" multiple class="absolute top-0 left-0 right-0 bottom-0 opacity-0" @click.stop
                         @change="onAttchementChose">
                     </button>
+
                   </div>
                 </div>
               </DialogPanel>

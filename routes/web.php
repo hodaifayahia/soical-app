@@ -61,8 +61,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/download/{attachment}',[PostController::class , 'downloadAttachment'])->name('post.download');
         Route::post('/{post}/reaction', [PostController::class, 'PostReaction'])
             ->name('post.reaction');
-            Route::post('/{post}/comment', [PostController::class, 'CreateComment'])
+        Route::post('/{post}/comment', [PostController::class, 'CreateComment'])
                 ->name('post.comment.create');
+        Route::post('/api-post', [PostController::class, 'aiPostsUsingGemini'])
+                ->name('post.aiPostsUsingGemini');
         });
 
 

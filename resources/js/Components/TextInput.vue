@@ -3,8 +3,12 @@ import { stringify } from 'postcss';
 import { onMounted, ref } from 'vue';
 
 const model = defineModel({
-    type: String,
+    type:String,
     required: true,
+});
+
+defineProps({
+    placehoulder : "placeholder"
 });
 
 const input = ref(null);
@@ -14,9 +18,6 @@ onMounted(() => {
         input.value.focus();
     }
 });
-defineProps({
-    placehoulder : "placeholder"
-})
 
 defineExpose({ focus: () => input.value.focus() });
 </script>

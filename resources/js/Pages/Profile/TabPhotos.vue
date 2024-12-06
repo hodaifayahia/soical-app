@@ -44,7 +44,11 @@ function ViewPohtos( index) {
                         </div>
     </div>
     <attachmentPreviewModel :Attachments="Photos || []" v-model:index="CurrentPhotoIndex" v-model="ShowModel" />
-
+    <div v-if="!Photos.length">
+        <div class="text-center lg-text  text-gray-500">
+            there are no Photos
+        </div>
+    </div>
 </template>
 
 <style>

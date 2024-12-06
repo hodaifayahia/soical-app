@@ -21,7 +21,7 @@
         "@ckeditor/ckeditor5-build-balloon": "^42.0.2",
         "@ckeditor/ckeditor5-build-classic": "^42.0.2",
         "@ckeditor/ckeditor5-vue": "^6.0.0",
-        "@headlessui/vue": "^1.7.22",
+        "@headlessui/vue": "^1.7.23",
         "@heroicons/vue": "^2.1.5",
         "ckeditor5": "^42.0.2",
         "ckeditor5-premium-features": "^0.0.1",

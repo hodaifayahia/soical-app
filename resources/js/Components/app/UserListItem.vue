@@ -1,7 +1,6 @@
 <script setup>
 
 import { Link } from '@inertiajs/vue3';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
 
 defineProps({
     user: Object,
@@ -24,7 +23,7 @@ defineEmits(['approved', 'reject', 'role-change' , 'Delete']);
 </script>
 <template>
     <div
-        class="flex items-center m-2 p-1  bg-gray-50  hover:bg-gray-10  rounded-lg transition duration-150 ease-in-out">
+        class="flex items-center m-3 p-3 bg-gray-100   hover:bg-gray-300  rounded-lg transition duration-150 ease-in-out  h-[80px]">
         <Link :href="route('profile', user.username)">
         <img :src="user.avatar_url || '/img/default_user.jpg'"
             class="rounded-full cursor-pointer w-[50px] h-[50px] mr-2" alt="">
@@ -34,7 +33,7 @@ defineEmits(['approved', 'reject', 'role-change' , 'Delete']);
             <h3 class="text-xl mr-6 text-black">
                 <div class="flex justify-between ">
                     <Link :href="route('profile', user.username)">
-                    <div class="w-full hover:underline cursor-pointer">
+                    <div class="w-full hover:underline cursor-pointer ml-2">
                         {{ user.name }}
                     </div>
                     </Link>

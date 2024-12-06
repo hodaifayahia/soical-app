@@ -16,7 +16,7 @@ const keywords = ref(usePage().props.keywords);
 
 const search = () => {
     if (keywords.value.trim()) {
-        router.get(route('search', { keywords: keywords.value }));
+        router.get(route('search',  encodeURIComponent(keywords.value)  ));
     }
 };
 

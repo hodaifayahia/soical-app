@@ -3,7 +3,7 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
 import { HandThumbUpIcon, ChatBubbleLeftRightIcon , ArrowPathIcon } from '@heroicons/vue/20/solid';
 import PostUserHeader from '@/Components/app/PostUserHeader.vue';
 import { router, usePage } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { computed } from 'vue';
 import axiosClient from '@/axiosClient.js';
 
 import ReadlessReadMore from '@/Components/app/ReadlessReadMore.vue';
@@ -18,6 +18,11 @@ const props = defineProps({
     post: Object,
     
 });
+const postbody =  computed(()=>{
+   return  props.post.body.replace(/(#\w+)(?![^<]*<\/a>)/g, function (match) {
+        return `<a class="hashtag" href="/search/${encodeURIComponent(match)}">${match}</a>`;
+    });
+})
 
 const emit = defineEmits(['editClick', 'attachmentClick']);
 function openEditModel() {
@@ -57,7 +62,7 @@ function sendReaction() {
 
         </div>
         <div>
-            <ReadlessReadMore :Content="post.body" ContentClass="">
+            <ReadlessReadMore :Content="postbody" ContentClass="">
             </ReadlessReadMore>
         </div>
         <div class="grid gap-2" :class="`grid-cols-${Math.min(props.post.attachments.length, 2)}`">

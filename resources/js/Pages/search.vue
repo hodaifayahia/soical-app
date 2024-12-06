@@ -14,6 +14,9 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
         groups:{
             type:Array
         },
+        keywords:{
+            type:String
+        },
 
     })
 
@@ -24,7 +27,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 <template>
     <AuthenticatedLayout>
     <div class="p-3">
-    <div class="grid lg:grid-cols-2 sm:grid-cols-1 gap-2">
+    <div v-if="!keywords.startsWith('#')" class="grid lg:grid-cols-2 sm:grid-cols-1 gap-2">
         <div>
             <h2 class="text-lg font-bold roundend  ">Users</h2>
             <div v-if="users.length"  class="grid-cols-1 bg-slate-50 p-2">
